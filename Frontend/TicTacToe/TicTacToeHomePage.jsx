@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import RoomComponent from "./Components/RoomComponent"
 
 export default function TicTacToeHomePage()
 {
@@ -7,14 +8,15 @@ export default function TicTacToeHomePage()
     return (
         <>
             <header>
-                <button onClick={() => navigate("/")}>Go back</button>
-                <h1>Tic Tac Toe</h1>
+                {/* <button onClick={() => navigate("/")}>Go back</button>
+                <h1>Tic Tac Toe</h1> */}
             </header>
             
             <body>
                 <div>
-                    <button>Play with PC</button>
-                    <button>Play with friends</button>
+                    <RoomComponent/>
+                    {/* <button>Play with PC</button>
+                    <button>Play with friends</button> */}
                 </div>
             </body>
         </>
