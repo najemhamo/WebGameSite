@@ -12,8 +12,10 @@ export default function TicTacToeHomePage()
             </header>
             
             <body>
-                <button>Play with PC</button>
-                <button>Play with friends</button>
+                <div>
+                    <button>Play with PC</button>
+                    <button>Play with friends</button>
+                </div>
             </body>
         </>
     )
