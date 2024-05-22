@@ -25,7 +25,19 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowAnyOrigin",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
+app.UseCors("AllowAnyOrigin");
 
 app.UseCors("AllowAnyOrigin");
 
