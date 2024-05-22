@@ -1,9 +1,11 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 export default function NameComponent(props)
 {
     const {setPlayerName} = props
     const [errorMessage, setErrorMessage] = useState(" ")
+    const navigate = useNavigate()
 
     const checkName = (event) =>
     {
@@ -18,11 +20,14 @@ export default function NameComponent(props)
 
     return (
         <>
+            <header>
+                <button className="backButton" onClick={() => navigate("/")}>Back</button>
+            </header>
             <div>
-                <h1>Enter your name:</h1>
+                <h1 className="smallerHeader">Enter your name</h1>
                 <form onSubmit={checkName}>
-                    <input type="text" name="username" placeholder="Your name"></input>
-                    <button type="submit">Submit</button>
+                    <input className="nameInput" type="text" name="username" placeholder="Your name"></input>
+                    <button className="nameButton" type="submit">Submit</button>
                 </form>
                 {errorMessage !== "" && <p>{errorMessage}</p>}
             </div>
