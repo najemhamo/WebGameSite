@@ -1,24 +1,28 @@
 import { useState } from "react"
 
-export default function NameComponent()
+export default function NameComponent(props)
 {
-    const [errorMessage, setErrorMessage] = useState("")
+    const {setPlayerName} = props
+    const [errorMessage, setErrorMessage] = useState(" ")
 
-    const submitName = (event) =>
+    const checkName = (event) =>
     {
         event.preventDefault()
-        if (event.target.value === "" || event.target.value === undefined)
+        const value = event.target.username.value
+
+        if (value === undefined || value.length === 0 || value[0] === ' ')
             setErrorMessage("Must provide a name")
+        else
+            setPlayerName(value)
     }
 
     return (
         <>
             <div>
                 <h1>Enter your name:</h1>
-                <form onSubmit={submitName}>
-
-                    <input type="text" placeholder="Your name"></input>
-                    <input type="submit" value="Submit" ></input>
+                <form onSubmit={checkName}>
+                    <input type="text" name="username" placeholder="Your name"></input>
+                    <button type="submit">Submit</button>
                 </form>
                 {errorMessage !== "" && <p>{errorMessage}</p>}
             </div>
