@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 namespace Models
 {
     public class GameRoom
@@ -5,7 +7,7 @@ namespace Models
         public Guid RoomId { get; set; }
         public int RoomCapacity { get; set; }
         public int CurrentPlayer { get; set; }
-        public bool HaveWon { get; set; }
+        public List<WebSocket> ConnectedPlayers { get; set; } = new List<WebSocket>();
         public static List<GameRoom> GameRooms { get; } = new List<GameRoom>
         {
             new GameRoom { RoomId = Guid.NewGuid() },
@@ -17,7 +19,6 @@ namespace Models
         {
             RoomCapacity = 0;
             CurrentPlayer = 1;
-            HaveWon = false;
         }
 
     }

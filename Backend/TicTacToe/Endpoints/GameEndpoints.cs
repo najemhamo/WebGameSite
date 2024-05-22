@@ -1,15 +1,33 @@
 using Microsoft.AspNetCore.Mvc;
 using Repository;
+using Services;
 
 namespace Endpoints
 {
     public static class GameEndpoints
     {
-        public static void ConfigureGameEndpoints(this WebApplication app)
+        public static void ConfigureTicTacToeEndpoints(this WebApplication app)
         {
             var game = app.MapGroup("/tictactoe");
+            game.MapGet("/connect", GetWebSocketConnection);
             game.MapGet("rooms", GetAllRooms);
             game.MapGet("rooms/{roomId}", GetRoom);
+        }
+
+
+        private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var roomId = Guid.Parse(context.Request.Query["roomId"]);
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                await webSocketService.HandleWebSocketConnection(webSocket, roomId);
+            }
+            else
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync("Expected a WebSocket request");
+            }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
