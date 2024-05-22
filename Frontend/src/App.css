@@ -8,3 +8,26 @@
 .NoListItemBullet {
   list-style-type: none;
 }
+
+.backButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 50px;
+  font-size: 0.8vw;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.header {
+  font-size: 5.5vw;
+}
+
+.button {
+  margin: 0 auto;
+  font-size: 1.2vw;
+}
