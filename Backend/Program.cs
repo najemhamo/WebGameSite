@@ -1,5 +1,6 @@
 using Endpoints;
 using Repository;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddSingleton<WebSocketService>();
+
+//Connection to the frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowAnyOrigin",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 
 var app = builder.Build();
+
+app.UseCors("AllowAnyOrigin");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -24,6 +40,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.ConfigureGameEndpoints();
+// Use websocket support
+app.UseWebSockets();
+
+app.ConfigureTicTacToeEndpoints();
 
 app.Run();
