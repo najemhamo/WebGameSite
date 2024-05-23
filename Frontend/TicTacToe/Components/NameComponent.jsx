@@ -21,7 +21,7 @@ export default function NameComponent(props)
     return (
         <>
             <header>
-                <button className="backButton" onClick={() => navigate("/")}>Back</button>
+                <button className="backButton" onClick={() => navigate("/TicTacToe")}>Back</button>
             </header>
             <div>
                 <h1 className="smallerHeader">Enter your name</h1>
