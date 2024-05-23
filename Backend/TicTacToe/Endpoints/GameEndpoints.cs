@@ -1,7 +1,7 @@
-using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
 using Services;
+using Models;
 
 namespace Endpoints
 {
@@ -15,6 +15,7 @@ namespace Endpoints
             game.MapGet("rooms/{roomId}", GetRoom);
             game.MapPost("rooms/{roomId}/join", JoinRoom);
             game.MapPost("rooms/{roomId}/leave", LeaveRoom);
+            game.MapPost("rooms/{roomId}/move", PlayerMove);
         }
 
 
@@ -55,14 +56,9 @@ namespace Endpoints
         // An endpoint to join a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> JoinRoom(Guid roomId, WebSocketService webSocketService, IGameRepository gameRepository)
+        private static async Task<IResult> JoinRoom(Guid roomId, [FromQuery] string playerName, WebSocketService webSocketService)
         {
-            var room = await gameRepository.GetGameRoom(roomId);
-            if (room.RoomCapacity >= 2)
-            {
-                return Results.BadRequest();
-            }
-            await webSocketService.JoinGameRoom(roomId);
+            await webSocketService.JoinGameRoom(roomId, playerName);
             return Results.Ok();
         }
 
@@ -78,6 +74,14 @@ namespace Endpoints
                 return Results.BadRequest();
             }
             await webSocketService.LeaveGameRoom(roomId);
+            return Results.Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        private static async Task<IResult> PlayerMove(PlayerMove move, WebSocketService webSocketService)
+        {
+            await webSocketService.PlayerMove(move);
             return Results.Ok();
         }
     }
