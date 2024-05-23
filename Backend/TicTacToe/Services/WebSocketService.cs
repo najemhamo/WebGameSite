@@ -40,5 +40,51 @@ namespace Services
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "WebSocket connection closed", default);
             }
         }
+
+        // A method to join a game room
+        public async Task JoinGameRoom(Guid roomId)
+        {
+            var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
+            if (room == null)
+            {
+                return;
+            }
+
+            if (room.RoomCapacity == 2)
+            {
+                return;
+            }
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    room.RoomCapacity++;
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                }
+            }
+        }
+
+        // A method to leave a game room
+        public async Task LeaveGameRoom(Guid roomId)
+        {
+            var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
+            if (room == null)
+            {
+                return;
+            }
+
+            if (room.RoomCapacity == 0)
+            {
+                return;
+            }
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    room.RoomCapacity--;
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                }
+            }
+        }
     }
 }
