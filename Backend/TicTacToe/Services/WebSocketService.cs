@@ -41,7 +41,7 @@ namespace Services
             }
         }
 
-        // A method to join a game room
+        // A method to join a game room in real-time
         public async Task JoinGameRoom(Guid roomId)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
@@ -50,21 +50,15 @@ namespace Services
                 return;
             }
 
-            if (room.RoomCapacity == 2)
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                return;
+                room.RoomCapacity++;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
-            foreach (var socket in _sockets)
-            {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity++;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
-            }
+        
         }
 
-        // A method to leave a game room
+        // A method to leave a game room in real-time
         public async Task LeaveGameRoom(Guid roomId)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
@@ -73,17 +67,10 @@ namespace Services
                 return;
             }
 
-            if (room.RoomCapacity == 0)
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                return;
-            }
-            foreach (var socket in _sockets)
-            {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity--;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity--;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
         }
     }

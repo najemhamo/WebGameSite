@@ -52,53 +52,33 @@ namespace Endpoints
             return Results.Ok(room);
         }
 
+        // An endpoint to join a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> JoinRoom(Guid roomId, WebSocketService webSocketService)
+        private static async Task<IResult> JoinRoom(Guid roomId, WebSocketService webSocketService, IGameRepository gameRepository)
         {
+            var room = await gameRepository.GetGameRoom(roomId);
+            if (room.RoomCapacity >= 2)
+            {
+                return Results.BadRequest();
+            }
             await webSocketService.JoinGameRoom(roomId);
             return Results.Ok();
         }
 
+
+        // An endpoint to leave a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> LeaveRoom(Guid roomId, WebSocketService webSocketService)
+        private static async Task<IResult> LeaveRoom(Guid roomId, WebSocketService webSocketService, IGameRepository gameRepository)
         {
+            var room = await gameRepository.GetGameRoom(roomId);
+            if (room.RoomCapacity == 0)
+            {
+                return Results.BadRequest();
+            }
             await webSocketService.LeaveGameRoom(roomId);
             return Results.Ok();
         }
     }
 }
-
-
-
-
-
-/*
-Plan B: In case WebSocketService is not available
-We are supposed to implement the JoinRoom and LeaveRoom methods in diffrent way
-*/
-
-    //     [ProducesResponseType(StatusCodes.Status200OK)]
-    //     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //     private static async Task<IResult> JoinRoom(IGameRepository gameRepository, Guid roomId)
-    //     {
-    //         var room = await gameRepository.JoinGameRoom(roomId);
-    //         if (room == null)
-    //         {
-    //             return Results.BadRequest();
-    //         }
-    //         return Results.Ok(room);
-    //     }
-
-    //     [ProducesResponseType(StatusCodes.Status200OK)]
-    //     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //     private static async Task<IResult> LeaveRoom(IGameRepository gameRepository, Guid roomId)
-    //     {
-    //         var room = await gameRepository.LeaveGameRoom(roomId);
-    //         if (room == null)
-    //         {
-    //             return Results.BadRequest();
-    //         }
-    //         return Results.Ok(room);
-    // }
