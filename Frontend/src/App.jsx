@@ -13,7 +13,7 @@ function App() {
         <Route path='/' element={<HomePage/>}/>
         <Route path='/TicTacToe' element={<TicTacToeHomePage/>}/>
         <Route path='/TicTacToe/Rooms' element={<RoomPage/>}/>
-        <Route path='/TickTacToe/PC' element={<PlayroomPage/>}/>
+        <Route path='/TicTacToe/:roomId' element={<PlayroomPage/>}/>
       </Routes>    
     </>
   )

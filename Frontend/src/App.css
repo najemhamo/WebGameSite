@@ -33,6 +33,11 @@
   font-size: 1.2vw;
 }
 
+.disabled {
+  opacity: 0.6;
+  cursor: initial;
+}
+
 
 .nameInput {
   margin-right: 20px;

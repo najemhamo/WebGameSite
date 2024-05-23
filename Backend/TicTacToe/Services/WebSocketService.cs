@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text;
 using Models;
 using GameLogic;
+using System.Net.Sockets;
 
 namespace Services
 {
@@ -54,13 +55,11 @@ namespace Services
             {
                 return;
             }
-            foreach (var socket in _sockets)
+
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity++;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity++;
+                await (_sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default));
             }
         }
 
@@ -77,13 +76,10 @@ namespace Services
             {
                 return;
             }
-            foreach (var socket in _sockets)
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity--;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity--;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
         }
     }
