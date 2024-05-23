@@ -11,12 +11,12 @@ namespace Backend.Quiz
         private readonly HttpClient _httpClient;
         private const string url = "https://nyheter24.se/quiz/977288-quiz-till-nyar-vad-hande-under-aret-som-gatt";
 
+        //Constructor
         public Scraper() 
         {
             _httpClient = new HttpClient();
         }
 
-        //Constructor
         public 
         (
             List<string> questions, 
@@ -41,15 +41,17 @@ namespace Backend.Quiz
             int descriptionIndex = 9;
             int answerIndex = 10;
 
-            for (int i = 0; i <= 15; i++)
+            //Loop through all questions in the URL
+            for (int i = 0; i < 15; i++)
             {
                 //Get questions
-                var queestionHeaderElement = htmlDocument.DocumentNode.SelectSingleNode($"(//h2)[{questionIndex}]");
-                var question = queestionHeaderElement?.InnerText.Trim();
+                var questionHeaderElement = htmlDocument.DocumentNode.SelectSingleNode($"(//h2)[{questionIndex}]");
+                var question = questionHeaderElement?.InnerText.Trim();
                 questions.Add(question);
 
                 //Get description
                 var paragraph = htmlDocument.DocumentNode.SelectSingleNode($"(//p)[{descriptionIndex}]");
+                //Skip over the hyperlinks
                 if (paragraph.ChildNodes.Count == 1 && paragraph.FirstChild.Name == "a")
                 {
                     descriptionIndex += 1;
@@ -71,17 +73,17 @@ namespace Backend.Quiz
                 };
                 answers.Add(answerAlternatives);
 
-                //Get right answers
-                var liNodes = htmlDocument.DocumentNode.SelectNodes("//li");
-                foreach (var liNode in liNodes)
-                {
-                    rightAnswers.Add(liNode.InnerText.Trim());
-                }
-
                 //Update index
                 questionIndex += 1;
                 descriptionIndex += 5;
                 answerIndex = descriptionIndex + 1;
+            }
+
+            //Get right answers
+            var liNodes = htmlDocument.DocumentNode.SelectNodes("//li");
+            foreach (var liNode in liNodes)
+            {
+                rightAnswers.Add(liNode.InnerText.Trim());
             }
 
             return (questions, descriptions, answers, rightAnswers);
