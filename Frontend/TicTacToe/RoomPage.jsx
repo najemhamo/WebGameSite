@@ -2,10 +2,11 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import NameComponent from "./Components/NameComponent"
 
-export default function RoomPage()
+export default function RoomPage(props)
 {
+    const {socket} = props
     const [rooms, setRooms] = useState([])
-    const [playerName, setPlayerName] = useState("")
+    const [playerName, setPlayerName] = useState("Klara")
     const navigate = useNavigate()
 
     // GET the rooms
@@ -15,6 +16,66 @@ export default function RoomPage()
         .then((response) => response.json())
         .then((data) => setRooms(data))
     }, [])
+
+    // POST join room
+    const joinRoom = (roomId) =>
+    {
+        const postOptions = {method: "POST"};
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join`, postOptions)
+        .then(() => {
+            socket.send(JSON.stringify({
+            type: "joinRoom",
+            id: roomId,
+            }))
+            navigate(`/TicTacToe/${roomId}`) // CHANGE to a smaller id ?
+        })   
+    }
+
+    // Socket listening
+    socket.onmessage = function (event)
+    {
+        const messageObj = JSON.parse(event.data)
+
+        // Shows an increased room capacity
+        if (messageObj.type === "joinRoom")
+        {
+            if (rooms.length === 0)
+            {
+                setRooms((rooms) => rooms.map((room) => {
+                    if (room.roomId === messageObj.id) room.roomCapacity++
+                    return room
+                }))
+            }
+            else
+            {
+                const newRooms = rooms.map((room) => {
+                    if (room.roomId === messageObj.id) room.roomCapacity++
+                    return room
+                })
+                setRooms(newRooms)
+            }
+        }
+
+        // Shows a decreased room capacity
+        else if (messageObj.type === "leaveRoom")
+        {
+            if (rooms.length === 0)
+            {
+                setRooms((rooms) => rooms.map((room) => {
+                    if (room.roomId === messageObj.id) room.roomCapacity--
+                    return room
+                }))
+            }
+            else
+            {
+                const newRooms = rooms.map((room) => {
+                    if (room.roomId === messageObj.id) room.roomCapacity--
+                    return room
+                })
+                setRooms(newRooms)
+            }
+        }
+    }
 
     return (
         <>
@@ -29,7 +90,11 @@ export default function RoomPage()
                 <div className="container">
                     {rooms.map((room, index) => (
                         <li className="NoListItemBullet" key={index}>
-                            <button className="button" disabled={room.roomCapacity === 2}>{room.roomCapacity !== 2 ? "Free to join" : "Full"}</button>
+                            <button
+                                onClick={() => joinRoom(room.roomId)}
+                                className={room.roomCapacity > 1 ? "disabled button" : "button"}
+                                disabled={room.roomCapacity > 1}>{room.roomCapacity < 2 ? "Free to join" : "Full"}
+                            </button>
                             <p className="yellowText">{room.roomCapacity} / 2</p>
                         </li>
                     ))}
