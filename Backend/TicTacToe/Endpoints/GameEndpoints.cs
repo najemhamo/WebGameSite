@@ -9,7 +9,7 @@ namespace Endpoints
         public static void ConfigureTicTacToeEndpoints(this WebApplication app)
         {
             var game = app.MapGroup("/tictactoe");
-            game.MapGet("/connect", GetWebSocketConnection);
+            game.MapGet("/", GetWebSocketConnection);
             game.MapGet("rooms", GetAllRooms);
             game.MapGet("rooms/{roomId}", GetRoom);
         }
@@ -19,9 +19,8 @@ namespace Endpoints
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                var roomId = Guid.Parse(context.Request.Query["roomId"]);
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await webSocketService.HandleWebSocketConnection(webSocket, roomId);
+                await webSocketService.HandleWebSocketConnection(webSocket);
             }
             else
             {
