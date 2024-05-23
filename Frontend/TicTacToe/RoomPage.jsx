@@ -9,7 +9,7 @@ export default function RoomPage()
     // GET the rooms
     useEffect(() =>
     {
-        fetch("https://localhost:7211/tictactoe/rooms")
+        fetch("http://localhost:5007/tictactoe/rooms")
         .then((response) => response.json())
         .then((data) => setRooms(data))
     }, [])
