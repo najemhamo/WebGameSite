@@ -52,6 +52,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.MapControllers();
+
 // Use websocket support
 app.UseWebSockets();
 

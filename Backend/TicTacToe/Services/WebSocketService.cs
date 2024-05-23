@@ -65,7 +65,7 @@ namespace Services
 
         }
 
-        // A method to leave a game room
+        // A method to leave a game room in real-time
         public async Task LeaveGameRoom(Guid roomId)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);

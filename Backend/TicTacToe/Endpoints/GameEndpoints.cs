@@ -53,6 +53,7 @@ namespace Endpoints
             return Results.Ok(room);
         }
 
+        // An endpoint to join a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> JoinRoom(Guid roomId, [FromQuery] string playerName, WebSocketService webSocketService)
@@ -61,10 +62,17 @@ namespace Endpoints
             return Results.Ok();
         }
 
+
+        // An endpoint to leave a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> LeaveRoom(Guid roomId, WebSocketService webSocketService)
+        private static async Task<IResult> LeaveRoom(Guid roomId, WebSocketService webSocketService, IGameRepository gameRepository)
         {
+            var room = await gameRepository.GetGameRoom(roomId);
+            if (room.RoomCapacity == 0)
+            {
+                return Results.BadRequest();
+            }
             await webSocketService.LeaveGameRoom(roomId);
             return Results.Ok();
         }
