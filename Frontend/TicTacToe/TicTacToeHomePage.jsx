@@ -11,7 +11,7 @@ export default function TicTacToeHomePage()
                 <h1 className="header">Tic Tac Toe</h1>
             </header>
             <div className="container">
-                <button className="button">Play with PC</button>
+                <button className="button" onClick={() => navigate("/TickTacToe/PC")}>Play with PC</button>
                 <button className="button" onClick={() => navigate("/TicTacToe/Rooms")}>Play with friends</button>
             </div>
         </>
