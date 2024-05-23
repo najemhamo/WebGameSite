@@ -25,10 +25,7 @@ namespace Services
                         await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
                         break;
                     }
-
-                    // Handle received message if needed
-
-                    // Optionally, broadcast message to other clients
+                    
                     foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
                     {
                         await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
@@ -42,13 +39,23 @@ namespace Services
             }
         }
 
-        // A method to join a game room in real-time
-        public async Task JoinGameRoom(Guid roomId)
+        // A method to join a game room
+        public async Task JoinGameRoom(Guid roomId, string playerName)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
-            if (room == null)
+            if (room == null || room.RoomCapacity >= 2)
             {
                 return;
+            }
+
+            if (room.RoomCapacity == 0)
+            {
+                room.PlayerX = playerName;
+            }
+
+            else if (room.RoomCapacity == 1)
+            {
+                room.PlayerO = playerName;
             }
 
             if (_sockets[0].State == WebSocketState.Open)
@@ -68,11 +75,47 @@ namespace Services
                 return;
             }
 
+            if (room.RoomCapacity == 0)
+            {
+                return;
+            }
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    room.RoomCapacity--;
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                }
+            }
+        }
+
+        public async Task PlayerMove(PlayerMove move)
+        {
+            var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
+            if (room == null)
+            {
+                return;
+            }
+
+            if ((move.Player == "X" && room.PlayerX != move.Player) ||
+                    (move.Player == "O" && room.PlayerO != move.Player) ||
+                    !TicTacToeGame.IsValidMove(room.Board, Array.IndexOf(move.Board, move.Player == "X" ? 1 : 2)))
+                {
+                    return;
+                }
+
+            room.Board = move.Board;
+            var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
+            move.GameState = state;
+            move.Board = updatedBoard;
+
+            var moveJson = JsonSerializer.Serialize(move);
+
             if (_sockets[0].State == WebSocketState.Open)
             {
-                room.RoomCapacity--;
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
             }
+        
         }
     }
 }
