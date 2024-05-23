@@ -13,7 +13,7 @@ export default function HomePage()
         <body>
             <ol>
                 <li onClick={() => navigate("/TicTacToe")}>Tic Tac Toe</li>
-                <li>Quiz</li> {/* Use this for getting to the Quiz */}
+                <li onClick={() => navigate("/Quiz")}>Quiz</li>
             </ol>
         </body>
     </>
