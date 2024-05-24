@@ -4,6 +4,7 @@ using System.Text;
 using Models;
 using GameLogic;
 using System.Net.Sockets;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Services
 {
@@ -25,7 +26,7 @@ namespace Services
                         await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
                         break;
                     }
-                    
+
                     foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
                     {
                         await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
@@ -79,13 +80,11 @@ namespace Services
             {
                 return;
             }
-            foreach (var socket in _sockets)
+
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity--;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity--;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
         }
 
@@ -100,9 +99,9 @@ namespace Services
             if ((move.Player == "X" && room.PlayerX != move.Player) ||
                     (move.Player == "O" && room.PlayerO != move.Player) ||
                     !TicTacToeGame.IsValidMove(room.Board, Array.IndexOf(move.Board, move.Player == "X" ? 1 : 2)))
-                {
-                    return;
-                }
+            {
+                return;
+            }
 
             room.Board = move.Board;
             var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
@@ -110,12 +109,10 @@ namespace Services
             move.Board = updatedBoard;
 
             var moveJson = JsonSerializer.Serialize(move);
-
             if (_sockets[0].State == WebSocketState.Open)
             {
                 await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
             }
-        
         }
     }
 }

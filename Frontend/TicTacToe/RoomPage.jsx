@@ -6,7 +6,7 @@ export default function RoomPage(props)
 {
     const {socket} = props
     const [rooms, setRooms] = useState([])
-    const [playerName, setPlayerName] = useState("Klara")
+    const [playerName, setPlayerName] = useState("Klara") // CHANGE for a dynamic player name
     const navigate = useNavigate()
 
     // GET the rooms
@@ -21,13 +21,13 @@ export default function RoomPage(props)
     const joinRoom = (roomId) =>
     {
         const postOptions = {method: "POST"};
-        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join`, postOptions)
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join?playerName=${playerName}`, postOptions)
         .then(() => {
             socket.send(JSON.stringify({
             type: "joinRoom",
             id: roomId,
             }))
-            navigate(`/TicTacToe/${roomId}`) // CHANGE to a smaller id ?
+            navigate(`/TicTacToe/${roomId}`)
         })   
     }
 
