@@ -8,19 +8,18 @@ import SubmissionPage from '../Quiz/SubmissionPage'
 import ScorePage from '../Quiz/ScorePage'
 
 function App() {
-
   return (
     <>
       <Routes>
-        <Route path='/' element={<HomePage/>}/>
-        <Route path='/*' element={<TicTacToePage/>}/>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/*" element={<TicTacToePage />} />
         <Route path='/Quiz' element={<QuizHomePage/>}/>
         <Route path='/Quiz/TakeQuiz' element={<QuestionPage/>}/>
         <Route path='/Quiz/Submission' element={<SubmissionPage/>}/>
         <Route path='/Quiz/ScorePage' element={<ScorePage/>}/>
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

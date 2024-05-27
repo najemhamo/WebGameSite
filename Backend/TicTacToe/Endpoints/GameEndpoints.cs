@@ -16,6 +16,8 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/join", JoinRoom);
             game.MapPost("rooms/{roomId}/leave", LeaveRoom);
             game.MapPost("rooms/{roomId}/move", PlayerMove);
+            game.MapPost("rooms/create", CreateRoom);
+            game.MapDelete("rooms/{roomId}/delete", DeleteRoom);
         }
 
 
@@ -81,7 +83,33 @@ namespace Endpoints
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> PlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
+
             await webSocketService.PlayerMove(move);
+            return Results.Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        private static async Task<IResult> CreateRoom(IGameRepository gameRepository)
+        {
+            var newRoom = new GameRoom
+            {
+                RoomId = Guid.NewGuid(),
+                Id = GameRoom.GameRooms.Count + 1
+            };
+            await gameRepository.CreateGameRoom(newRoom);
+            return Results.Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        private static async Task<IResult> DeleteRoom(Guid roomId, IGameRepository gameRepository)
+        {
+            if (await gameRepository.GetGameRoom(roomId) == null)
+            {
+                return Results.BadRequest();
+            }
+            await gameRepository.DeleteGameRoom(roomId);
             return Results.Ok();
         }
     }
