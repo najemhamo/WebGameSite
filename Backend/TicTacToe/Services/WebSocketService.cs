@@ -94,12 +94,12 @@ namespace Services
             room.RoomCapacity--;
         }
 
-        public async Task<int[]> PlayerMove(PlayerMove move)
+        public async Task PlayerMove(PlayerMove move)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
             {
-                return new int[7];
+                return;
             }
 
             room.Board = move.Board;

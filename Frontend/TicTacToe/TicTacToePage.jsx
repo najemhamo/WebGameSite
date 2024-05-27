@@ -7,7 +7,7 @@ import PlayroomPage from './PlayroomPage'
 export default function TicTacToePage()
 {
     const [socket] = useState(new WebSocket("ws://localhost:5007/tictactoe"));
-    const [playerName, setPlayerName] = useState("")
+    const [playerName, setPlayerName] = useState("KLARA")
 
     return (
         <>
