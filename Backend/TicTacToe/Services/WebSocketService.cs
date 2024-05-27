@@ -57,14 +57,13 @@ namespace Services
                 room.PlayerO = playerName;
             }
 
-            foreach (var socket in _sockets)
+
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity++;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
-            room.RoomCapacity++;
+
 
         }
 
@@ -81,14 +80,12 @@ namespace Services
             {
                 return;
             }
-            foreach (var socket in _sockets)
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity--;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
-            room.RoomCapacity--;
+
         }
 
         public async Task PlayerMove(PlayerMove move)
