@@ -17,6 +17,14 @@
   font-size: 0.8vw;
 }
 
+.nextButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 50px;
+  font-size: 0.8vw;
+}
+
 .container {
   display: flex;
   align-items: center;
@@ -33,6 +41,11 @@
   font-size: 1.2vw;
 }
 
+.answerButtonsContainer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
 
 .nameInput {
   margin-right: 20px;

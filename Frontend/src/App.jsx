@@ -5,6 +5,9 @@ import TicTacToeHomePage from '../TicTacToe/TicTacToeHomePage'
 import RoomPage from '../TicTacToe/RoomPage'
 import PlayroomPage from '../TicTacToe/PlayroomPage'
 import QuizHomePage from '../Quiz/QuizHomePage'
+import QuestionPage from '../Quiz/QuestionPage'
+import SubmissionPage from '../Quiz/SubmissionPage'
+import ScorePage from '../Quiz/ScorePage'
 
 function App() {
 
@@ -16,6 +19,9 @@ function App() {
         <Route path='/TicTacToe/Rooms' element={<RoomPage/>}/>
         <Route path='/TickTacToe/PC' element={<PlayroomPage/>}/>
         <Route path='/Quiz' element={<QuizHomePage/>}/>
+        <Route path='/Quiz/TakeQuiz' element={<QuestionPage/>}/>
+        <Route path='/Quiz/Submission' element={<SubmissionPage/>}/>
+        <Route path='/Quiz/ScorePage' element={<ScorePage/>}/>
       </Routes>    
     </>
   )
