@@ -81,7 +81,11 @@ namespace Endpoints
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> PlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
-            await webSocketService.PlayerMove(move);
+            var board = await webSocketService.PlayerMove(move);
+
+            if (board == null)
+                return Results.BadRequest();
+
             return Results.Ok();
         }
     }

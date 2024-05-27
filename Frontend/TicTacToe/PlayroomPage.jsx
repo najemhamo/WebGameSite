@@ -3,11 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function PlayroomPage(props)
 {
-    const { roomId } = useParams();
+    const { roomId, playerName } = useParams();
     const {socket} = props
 
     const navigate = useNavigate()
-    const [board, setBoard] = useState(Array(9).fill(0))
+    const [board, setBoard] = useState([])
     const [canStart, setCanStart] = useState(false)
     const [player, setPlayer] = useState(0)
     const [currentPlayer, setCurrentPlayer] = useState(0)
@@ -15,20 +15,21 @@ export default function PlayroomPage(props)
     // GET the room
     useEffect(() =>
     {
-        if (canStart) // CHANGE fix the restart of page "GET BOARD" API ?
-            return
-
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`)
         .then((response) => response.json())
         .then((data) => {
+
+            setBoard(data.board)
+
             if (data.roomCapacity === 2)
             {
-                socket.send(JSON.stringify({
-                type: "readyToStart"
-                }))
-        
+                if (socket.readyState === WebSocket.OPEN)
+                    socket.send(JSON.stringify({type: "readyToStart"}))
+                
+                if (playerName[0] === "X")
+                    setPlayer(1)
+                
                 setCanStart(true)
-                setPlayer(1)
             }
         })
     }, [])
@@ -82,7 +83,7 @@ export default function PlayroomPage(props)
             body: JSON.stringify({
                 roomId: roomId,
                 board: tmpBoard,
-                gameState: 0,
+                gameState: 0, // CHANGE handle win condition
                 player: player === 0 ? "O" : "X"
             })
         }

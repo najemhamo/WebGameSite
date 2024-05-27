@@ -64,7 +64,6 @@ namespace Services
                 room.RoomCapacity++;
                 await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
-
         }
 
         // A method to leave a game room in real-time
@@ -88,19 +87,12 @@ namespace Services
             }
         }
 
-        public async Task PlayerMove(PlayerMove move)
+        public async Task<int[]> PlayerMove(PlayerMove move)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
             {
-                return;
-            }
-
-            if ((move.Player == "X" && room.PlayerX != move.Player) ||
-                    (move.Player == "O" && room.PlayerO != move.Player) ||
-                    !TicTacToeGame.IsValidMove(room.Board, Array.IndexOf(move.Board, move.Player == "X" ? 1 : 2)))
-            {
-                return;
+                return new int[7];
             }
 
             room.Board = move.Board;
@@ -109,10 +101,15 @@ namespace Services
             move.Board = updatedBoard;
 
             var moveJson = JsonSerializer.Serialize(move);
-            if (_sockets[0].State == WebSocketState.Open)
+            foreach (var socket in _sockets)
             {
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+
             }
+            return room.Board;
         }
     }
 }
