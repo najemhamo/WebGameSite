@@ -122,8 +122,7 @@ namespace Services
                 Board = move.Board,
                 GameState = move.GameState,
                 Player = move.Player,
-                Winner = room.Winner,
-                IsDraw = room.IsDraw
+                Winner = room.Winner
             });
 
             foreach (var socket in _sockets)

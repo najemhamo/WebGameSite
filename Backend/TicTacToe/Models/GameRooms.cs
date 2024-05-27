@@ -9,7 +9,6 @@ namespace Models
         public string PlayerO { get; set; }
         public int[] Board { get; set; } = new int[9];
         public string Winner { get; set; }
-        public bool IsDraw { get; set; }
 
         public static List<GameRoom> GameRooms { get; } = new List<GameRoom>
         {
