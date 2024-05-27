@@ -59,11 +59,15 @@ namespace Services
                 room.PlayerO = playerName;
             }
 
-            if (_sockets[0].State == WebSocketState.Open)
+            foreach (var socket in _sockets)
             {
-                room.RoomCapacity++;
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                }
             }
+            room.RoomCapacity++;
+
         }
 
         // A method to leave a game room in real-time
@@ -80,11 +84,14 @@ namespace Services
                 return;
             }
 
-            if (_sockets[0].State == WebSocketState.Open)
+            foreach (var socket in _sockets)
             {
-                room.RoomCapacity--;
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
+                }
             }
+            room.RoomCapacity--;
         }
 
         public async Task<int[]> PlayerMove(PlayerMove move)
@@ -97,19 +104,37 @@ namespace Services
 
             room.Board = move.Board;
             var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
-            move.GameState = state;
-            move.Board = updatedBoard;
+            room.Board = updatedBoard;
 
-            var moveJson = JsonSerializer.Serialize(move);
+
+            // Update the game state to 1 (win) or 2 (draw)
+            if (state == GameState.Win)
+            {
+                move.GameState = (GameState)1;
+            }
+            else if (state == GameState.Draw)
+            {
+                move.GameState = (GameState)2;
+            }
+            else
+            {
+                move.GameState = GameState.StillPlaying;
+            }
+
+            var moveJson = JsonSerializer.Serialize(new
+            {
+                Board = move.Board,
+                GameState = move.GameState,
+                Player = move.Player
+            });
+
             foreach (var socket in _sockets)
             {
                 if (socket.State == WebSocketState.Open)
                 {
                     await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
                 }
-
             }
-            return room.Board;
         }
     }
 }

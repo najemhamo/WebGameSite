@@ -34,10 +34,5 @@ namespace GameLogic
 
             return (GameState.StillPlaying, board);
         }
-
-        public static bool IsValidMove(int[] board, int move)
-        {
-            return move >= 0 && move < 9 && board[move] == 0;
-        }
     }
 }

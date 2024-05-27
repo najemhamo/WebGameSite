@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function QuizHomePage() {
     const navigate = useNavigate();
-
     const startQuiz = () => {
-        navigate('/takeQuiz');
+        navigate('/Quiz/TakeQuiz');
     };
 
     const backToHomePage = () => {
