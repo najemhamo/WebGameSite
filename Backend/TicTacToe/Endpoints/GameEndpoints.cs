@@ -17,7 +17,7 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/leave", LeaveRoom);
             game.MapPost("rooms/{roomId}/move", PlayerMove);
             game.MapPost("rooms/create", CreateRoom);
-            game.MapPost("rooms/{roomId}/delete", DeleteRoom);
+            game.MapDelete("rooms/{roomId}/delete", DeleteRoom);
         }
 
 
@@ -83,6 +83,7 @@ namespace Endpoints
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         private static async Task<IResult> PlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
+
             await webSocketService.PlayerMove(move);
             return Results.Ok();
         }

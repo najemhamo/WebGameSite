@@ -105,10 +105,12 @@ namespace Services
             if (state == GameState.Win)
             {
                 move.GameState = (GameState)1;
+                room.Winner = move.Player;
             }
             else if (state == GameState.Draw)
             {
                 move.GameState = (GameState)2;
+                room.IsDraw = true;
             }
             else
             {
@@ -119,7 +121,9 @@ namespace Services
             {
                 Board = move.Board,
                 GameState = move.GameState,
-                Player = move.Player
+                Player = move.Player,
+                Winner = room.Winner,
+                IsDraw = room.IsDraw
             });
 
             foreach (var socket in _sockets)
