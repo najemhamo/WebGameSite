@@ -137,28 +137,43 @@ export default function PlayroomPage(props)
         setCurrentPlayer((currentPlayer + 1) % 2)
     }
 
+
+    // CHANGE test with Light Mode
+
     return (
         <div>
-            <h2>Game Room {id}</h2>
-            <div>
-                <p className={winner ? "redText" : ""}>Player O: {players[0]}</p>
-                <p className={winner ? "redText" : ""}>Player X: {players[1]}</p>
-                {/* CHANGE fix this to correct player*/}
-            </div>
-            <div className="grid">
-                {canStart && board.map((place, index) => (
-                    <button
-                        key={index}
-                        id={board[index] === 3 ? "redText" : ""}
-                        className={currentPlayer !== player || winner ? "disabled" : ""}
-                        disabled={currentPlayer !== player || winner}
-                        onClick={() => makeMove(index)}>{board[index] === 1 ? "O" : board[index] === 2 ? "X" : board[index] === 3 ? winner : ""}
-                    </button>
-                ))}
-            </div>
+            <header>
+                <h2 className="smallerHeader">Game Room {id}</h2>
+                <div className="nameContainer">
+                    <p id={winner ? "redText" : ""}>Player O{players[0]}</p>
+                    <p>VS</p>
+                    <p id={winner ? "redText" : ""}>{players[1]}</p>
+                    {/* CHANGE fix this to correct player*/}
+                </div>
+            </header>
 
-            {!canStart && <p>Waiting for another player...</p>}
-            <button onClick={leaveRoom}>End Game</button>
+            <body className={canStart ? "gameBody" : "waiting"}>
+                <div className="grid">
+                    {canStart && board.map((piece, index) => (
+                        <button
+                        key={index}
+                        id={piece === 3 ? "redText" : ""}
+                        className={currentPlayer !== player || winner ? "disabled playButton" : "playButton"}
+                        disabled={currentPlayer !== player || winner}
+                        onClick={() => makeMove(index)}>{piece === 1 ? "O" : piece === 2 ? "X" : piece === 3 ? winner : ""}
+                        </button>
+                    ))}
+                </div>
+                
+                {!canStart && <p>Waiting for another player...</p>}
+            </body>
+
+            <div className="gameFooter">
+                <button>Restart Game</button>
+                <div className="buttonRight">
+                    <button onClick={leaveRoom}>End Game</button>
+                </div>
+            </div>
         </div>
     )
 }
