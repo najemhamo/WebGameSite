@@ -83,7 +83,7 @@ namespace Backend.Quiz
             var liNodes = htmlDocument.DocumentNode.SelectNodes("//li");
             foreach (var liNode in liNodes)
             {
-                rightAnswers.Add(liNode.InnerText.Trim());
+                rightAnswers.Add(liNode.InnerText.Substring(0, 1));
             }
 
             return (questions, descriptions, answers, rightAnswers);
