@@ -4,9 +4,8 @@ import NameComponent from "./Components/NameComponent"
 
 export default function RoomPage(props)
 {
-    const {socket} = props
+    const {socket, playerName, setPlayerName} = props
     const [rooms, setRooms] = useState([])
-    const [playerName, setPlayerName] = useState("Klara")
     const navigate = useNavigate()
 
     // GET the rooms
@@ -21,13 +20,15 @@ export default function RoomPage(props)
     const joinRoom = (roomId) =>
     {
         const postOptions = {method: "POST"};
-        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join`, postOptions)
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join?playerName=${playerName}`, postOptions)
         .then(() => {
             socket.send(JSON.stringify({
             type: "joinRoom",
             id: roomId,
             }))
-            navigate(`/TicTacToe/${roomId}`) // CHANGE to a smaller id ?
+
+            const place = rooms.filter((room) => {return room.roomId === roomId})[0].roomCapacity === 0 ? "O" : "X"
+            navigate(`/TicTacToe/${roomId}/${place}-${playerName}`)
         })   
     }
 
@@ -77,6 +78,12 @@ export default function RoomPage(props)
         }
     }
 
+    const goHome = () =>
+    {
+        setPlayerName("")
+        navigate("/TicTacToe")
+    }
+
     return (
         <>
             {playerName !== "" &&
@@ -84,7 +91,7 @@ export default function RoomPage(props)
 
                 <header>
                     <h1 className="mediumHeader">Free Rooms</h1>
-                    <button className="backButton" onClick={() => navigate("/TicTacToe")}>Back</button>
+                    <button className="backButton" onClick={goHome}>Back</button>
                 </header>
 
                 <div className="container">

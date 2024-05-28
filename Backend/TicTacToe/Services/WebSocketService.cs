@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text;
 using Models;
 using GameLogic;
+using System.Net.Sockets;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Services
 {
@@ -110,7 +112,6 @@ namespace Services
             else if (state == GameState.Draw)
             {
                 move.GameState = (GameState)2;
-                room.IsDraw = true;
             }
             else
             {
