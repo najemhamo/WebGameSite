@@ -17,7 +17,6 @@ function App() {
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/*' element={<TicTacToePage/>}/>
-      </Routes>
         <Route path='/TicTacToe' element={<TicTacToeHomePage/>}/>
         <Route path='/TicTacToe/Rooms' element={<RoomPage/>}/>
         <Route path='/TickTacToe/PC' element={<PlayroomPage/>}/>
