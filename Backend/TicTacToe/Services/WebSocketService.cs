@@ -4,6 +4,7 @@ using System.Text;
 using Models;
 using GameLogic;
 using System.Net.Sockets;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Services
 {
@@ -25,7 +26,7 @@ namespace Services
                         await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
                         break;
                     }
-                    
+
                     foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
                     {
                         await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
@@ -58,11 +59,13 @@ namespace Services
                 room.PlayerO = playerName;
             }
 
+
             if (_sockets[0].State == WebSocketState.Open)
             {
                 room.RoomCapacity++;
                 await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
+
 
         }
 
@@ -79,14 +82,12 @@ namespace Services
             {
                 return;
             }
-            foreach (var socket in _sockets)
+            if (_sockets[0].State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    room.RoomCapacity--;
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-                }
+                room.RoomCapacity--;
+                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
             }
+
         }
 
         public async Task PlayerMove(PlayerMove move)
@@ -97,25 +98,41 @@ namespace Services
                 return;
             }
 
-            if ((move.Player == "X" && room.PlayerX != move.Player) ||
-                    (move.Player == "O" && room.PlayerO != move.Player) ||
-                    !TicTacToeGame.IsValidMove(room.Board, Array.IndexOf(move.Board, move.Player == "X" ? 1 : 2)))
-                {
-                    return;
-                }
-
             room.Board = move.Board;
             var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
-            move.GameState = state;
-            move.Board = updatedBoard;
+            room.Board = updatedBoard;
 
-            var moveJson = JsonSerializer.Serialize(move);
 
-            if (_sockets[0].State == WebSocketState.Open)
+            // Update the game state to 1 (win) or 2 (draw)
+            if (state == GameState.Win)
             {
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                move.GameState = (GameState)1;
+                room.Winner = move.Player;
             }
-        
+            else if (state == GameState.Draw)
+            {
+                move.GameState = (GameState)2;
+            }
+            else
+            {
+                move.GameState = GameState.StillPlaying;
+            }
+
+            var moveJson = JsonSerializer.Serialize(new
+            {
+                Board = move.Board,
+                GameState = move.GameState,
+                Player = move.Player,
+                Winner = room.Winner
+            });
+
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+            }
         }
     }
 }

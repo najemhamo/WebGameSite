@@ -3,28 +3,43 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function PlayroomPage(props)
 {
-    const { roomId } = useParams();
+    const { roomId, playerName } = useParams();
     const {socket} = props
 
-    const navigate = useNavigate() // CHANGE to use Context ?
-    const [board, setBoard] = useState(Array(3).fill(Array(3).fill(0)));
+    const navigate = useNavigate()
+    const [id, setId] = useState(0)
+    const [board, setBoard] = useState([])
+    const [player, setPlayer] = useState(0) // CHANGE clean this up!
+    const [winner, setWinner] = useState(null)
+    const [players, setPlayers] = useState([])
     const [canStart, setCanStart] = useState(false)
+    const [currentPlayer, setCurrentPlayer] = useState(0)
 
-    // GET the rooms
+    // CHANGE API for resetting the board
+
+    // GET the room
     useEffect(() =>
     {
-        if (canStart)
-            return
-
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`)
         .then((response) => response.json())
         .then((data) => {
+
+            setBoard(data.board)
+            setId(data.id)
+            const tmpPlayers = [data.playerO || "", data.playerX || ""]
+            setPlayers(tmpPlayers)
+
             if (data.roomCapacity === 2)
             {
-                socket.send(JSON.stringify({
-                type: "readyToStart"
-                }))
-        
+                if (socket.readyState === WebSocket.OPEN)
+                    socket.send(JSON.stringify({type: "readyToStart", players: tmpPlayers}))
+                
+                if (playerName[0] === "X")
+                    setPlayer(1)
+
+                if (data.winner)
+                    setWinner(data.winner)
+                
                 setCanStart(true)
             }
         })
@@ -37,11 +52,30 @@ export default function PlayroomPage(props)
         
         // When the game can start
         if (messageObj.type === "readyToStart")
+        {
+            setPlayers(messageObj.players)
             setCanStart(true)
+        }
 
         // When a player has left the room
-        if (messageObj.type === "leaveRoom")
+        else if (messageObj.type === "leaveRoom")
             setCanStart(false)
+
+        // When the board should be updated with the new move
+        else if (messageObj.type === "madeMove")
+        {
+            let newBoard = [...board]
+            newBoard[messageObj.place] = currentPlayer + 1
+            setCurrentPlayer((currentPlayer + 1) % 2)
+            setBoard(newBoard)
+        }
+
+        // When a player has won the game
+        else if (messageObj.type === "haveWon")
+        {
+            setWinner(messageObj.winner)
+            setBoard(messageObj.board)
+        }
     }
 
     // POST leave room
@@ -58,21 +92,73 @@ export default function PlayroomPage(props)
         })
     }
 
+    // POST make a move
+    const makeMove = (index) =>
+    {
+        let tmpBoard = board
+        tmpBoard[index] = currentPlayer + 1
+        
+        const postOptions = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                roomId: roomId,
+                board: tmpBoard,
+                gameState: 0, // CHANGE remove this
+                player: player === 0 ? "O" : "X"
+            })
+        }
+        
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/move`, postOptions)
+        .then(() => {
+            socket.send(JSON.stringify({
+            type: "madeMove",
+            place: index
+            }))
+
+            fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("DATA", data)
+                setBoard(data.board)
+
+                if (data.winner)
+                {
+                    setWinner(data.winner)
+                    socket.send(JSON.stringify({
+                    type: "haveWon",
+                    winner: data.winner,
+                    board: data.board
+                    }))
+                }
+            })
+        })
+
+        setCurrentPlayer((currentPlayer + 1) % 2)
+    }
+
     return (
         <div>
-            <h2>Game Room</h2>
-            
+            <h2>Game Room {id}</h2>
+            <div>
+                <p className={winner ? "redText" : ""}>Player O: {players[0]}</p>
+                <p className={winner ? "redText" : ""}>Player X: {players[1]}</p>
+                {/* CHANGE fix this to correct player*/}
+            </div>
             <div className="grid">
-                {canStart && board.map((row, x) => row.map((cell, y) => (
-                    <div key={`${x}-${y}`} className="gridStyle"> 
-                        <button></button>
-                        {/* CHANGE use buttons or just a grid ? */}
-                    </div>
-                )))}
+                {canStart && board.map((place, index) => (
+                    <button
+                        key={index}
+                        id={board[index] === 3 ? "redText" : ""}
+                        className={currentPlayer !== player || winner ? "disabled" : ""}
+                        disabled={currentPlayer !== player || winner}
+                        onClick={() => makeMove(index)}>{board[index] === 1 ? "O" : board[index] === 2 ? "X" : board[index] === 3 ? winner : ""}
+                    </button>
+                ))}
             </div>
 
-            <button onClick={leaveRoom}>End Game</button>
             {!canStart && <p>Waiting for another player...</p>}
+            <button onClick={leaveRoom}>End Game</button>
         </div>
     )
 }
