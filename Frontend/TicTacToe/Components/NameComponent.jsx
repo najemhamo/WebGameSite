@@ -20,16 +20,18 @@ export default function NameComponent(props)
 
     return (
         <>
-            <header>
-                <button className="backButton" onClick={() => navigate("/TicTacToe")}>Back</button>
-            </header>
-            <div>
-                <h1 className="smallerHeader">Enter your name</h1>
-                <form onSubmit={checkName}>
-                    <input className="nameInput" type="text" name="username" placeholder="Your name"></input>
-                    <button className="nameButton" type="submit">Submit</button>
-                </form>
-                {errorMessage !== "" && <p>{errorMessage}</p>}
+            <div className="container">
+                <header>
+                    <button className="backButton" onClick={() => navigate("/TicTacToe")}>Back</button>
+                </header>
+                <div>
+                    <h1 className="smallerHeader">Enter your name</h1>
+                    <form onSubmit={checkName}>
+                        <input className="nameInput" type="text" name="username" placeholder="Your name"></input>
+                        <button className="nameButton" type="submit">Submit</button>
+                    </form>
+                    {errorMessage !== "" && <p>{errorMessage}</p>}
+                </div>
             </div>
         </>
     )
