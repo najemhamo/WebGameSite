@@ -15,8 +15,6 @@ export default function PlayroomPage(props)
     const [canStart, setCanStart] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState(0)
 
-    // CHANGE API for resetting the board
-
     // GET the room
     useEffect(() =>
     {
@@ -78,6 +76,11 @@ export default function PlayroomPage(props)
         }
     }
 
+    const restartGame = () =>
+    {
+        // CHANGE implement restart of game
+    }
+
     // POST leave room
     const leaveRoom = () =>
     {
@@ -137,9 +140,6 @@ export default function PlayroomPage(props)
         setCurrentPlayer((currentPlayer + 1) % 2)
     }
 
-
-    // CHANGE test with Light Mode
-
     return (
         <div>
             <header>
@@ -169,7 +169,7 @@ export default function PlayroomPage(props)
             </body>
 
             <div className="gameFooter">
-                <button>Restart Game</button>
+                <button onClick={restartGame}>Restart Game</button>
                 <div className="buttonRight">
                     <button onClick={leaveRoom}>End Game</button>
                 </div>
