@@ -15,9 +15,17 @@ namespace Repository
             return await Task.FromResult(GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId));
         }
 
-        public async Task CreateGameRoom(GameRoom gameRoom)
+        public async Task CreateSinglePlayerRoom(string playerName, string difficulty)
         {
-            GameRoom.GameRooms.Add(gameRoom);
+            var newRoom = new GameRoom
+            {
+                RoomId = Guid.NewGuid(),
+                RoomCapacity = 1,
+                PlayerX = playerName,
+                Difficulty = difficulty
+            };
+
+            GameRoom.GameRooms.Add(newRoom);
             await Task.FromResult(GameRoom.GameRooms);
         }
 

@@ -6,7 +6,7 @@ namespace Repository
     {
         Task<IEnumerable<GameRoom>> GetGameRooms();
         Task<GameRoom> GetGameRoom(Guid roomId);
-        Task CreateGameRoom(GameRoom gameRoom);
+        Task CreateSinglePlayerRoom(string playerName, string difficulty);
         Task DeleteGameRoom(Guid roomId);
     }
 }

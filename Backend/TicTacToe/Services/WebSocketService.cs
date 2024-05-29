@@ -3,8 +3,6 @@ using System.Text.Json;
 using System.Text;
 using Models;
 using GameLogic;
-using System.Net.Sockets;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace Services
 {
@@ -131,6 +129,36 @@ namespace Services
                 if (socket.State == WebSocketState.Open)
                 {
                     await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+            }
+            // AI Move
+            if (state == GameState.StillPlaying && move.Player == "X")
+            {
+                room.Board = TicTacToeGame.MakeComputerMove(room.Board, room.Difficulty);
+                (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
+                room.Board = updatedBoard;
+
+                var computerMove = new PlayerMove
+                {
+                    RoomId = move.RoomId,
+                    Board = room.Board,
+                    Player = "O",
+                    GameState = state
+                };
+
+                moveJson = JsonSerializer.Serialize(new
+                {
+                    Board = computerMove.Board,
+                    GameState = (int)computerMove.GameState,
+                    Player = computerMove.Player
+                });
+
+                foreach (var socket in _sockets)
+                {
+                    if (socket.State == WebSocketState.Open)
+                    {
+                        await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                    }
                 }
             }
         }
