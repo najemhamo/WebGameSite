@@ -5,6 +5,7 @@ namespace Models
         public int Id { get; set; }
         public Guid RoomId { get; set; }
         public int RoomCapacity { get; set; }
+        public string Difficulty { get; set; } // Easy or Hard
         public string PlayerX { get; set; }
         public string PlayerO { get; set; }
         public int[] Board { get; set; } = new int[9];
