@@ -1,9 +1,11 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ScorePage () {
     const navigate = useNavigate();
+    const {state} = useLocation();
+    const score = state.score;
+    
     const backToHomePage = () => {
         navigate('/');
     }
@@ -12,7 +14,7 @@ export default function ScorePage () {
         <>
             <header>
                 <h1>
-                    Your score: 8/10
+                    Your score: {score}/15
                 </h1>
             </header>
             <main>

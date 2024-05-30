@@ -5,13 +5,14 @@ export default function QuizHomePage() {
     const [questions, setQuestions] = useState([]);
     const [descriptions, setDescriptions] = useState([]);
     const [answers, setAnswers] = useState ([]);
-    // const [userAnswers, setUserAnswers] = useState([]);
-    // const [score, setScore] = useState(null);
+    const [userAnswers, setUserAnswers] = useState([]);
 
     const navigate = useNavigate();
 
     const startQuiz = () => {
-        navigate('/Quiz/TakeQuiz');
+        const initialUserAnswers = new Array(15).fill(null);
+        setUserAnswers(initialUserAnswers);
+        navigate('/Quiz/TakeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers}});
     };
 
     const backToHomePage = () => {
@@ -44,10 +45,6 @@ export default function QuizHomePage() {
             setQuestions(questionData);
             setDescriptions(descriptionData);
             setAnswers(answersData);
-
-            console.log('Questions:', questionData);
-            console.log('Descriptions:', descriptionData);
-            console.log('Answers:', answersData);
         } 
         
         catch (error) 

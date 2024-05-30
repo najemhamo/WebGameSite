@@ -14,7 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/*" element={<TicTacToePage />} />
         <Route path='/Quiz' element={<QuizHomePage/>}/>
-        <Route path='/Quiz/TakeQuiz' element={<QuestionPage/>}/>
+        <Route path='/Quiz/TakeQuiz/:questionId' element={<QuestionPage/>}/>
         <Route path='/Quiz/Submission' element={<SubmissionPage/>}/>
         <Route path='/Quiz/ScorePage' element={<ScorePage/>}/>
       </Routes>

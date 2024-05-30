@@ -1,14 +1,38 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useState} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function SubmissionPage () {
     const navigate = useNavigate();
-    const submit = () => {
-        navigate('/Quiz/ScorePage');
-    }
+    const {state} = useLocation();
+
     const backToPrevious = () => {
-        navigate('/');
-    }
+        const lastQuestionIndex = state.userAnswers.length;
+        navigate(`/Quiz/TakeQuiz/${lastQuestionIndex}`, { state });
+    };
+
+    const userAnswers = state.userAnswers;
+    const submit = async () => {
+        try {
+            const response = await fetch('http://localhost:5007/Quiz/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userAnswers)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit answers');
+            }
+
+            const data = await response.json();
+            const score = data.score;
+            navigate('/Quiz/ScorePage', { state: { score } });
+        } catch (error) {
+            console.error('Error submitting answers:', error);
+            alert('There was an error submitting your answers. Please try again.');
+        }
+    };
 
     return (
         <>
