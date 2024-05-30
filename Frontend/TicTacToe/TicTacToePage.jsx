@@ -16,7 +16,7 @@ export default function TicTacToePage()
             <Route path='/TicTacToe' element={<TicTacToeHomePage/>}/>
             <Route path='/TicTacToe/Rooms' element={<RoomPage socket={socket} playerName={playerName} setPlayerName={setPlayerName}/>}/>
             <Route path='/TicTacToe/:roomId/:playerName' element={<PlayroomPage socket={socket}/>}/>
-            <Route path='/TicTacToe/PC' element={<PCPlayRoom playerName={playerName}/>}/>
+            <Route path='/TicTacToe/PC/:roomId' element={<PCPlayRoom playerName={playerName}/>}/>
         </Routes>
         </>
     )

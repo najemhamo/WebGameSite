@@ -8,7 +8,11 @@ export default function TicTacToeHomePage()
     {
         const postOptions = {method: "POST"};
         fetch(`http://localhost:5007/tictactoe/rooms/create`, postOptions)
-        .then(navigate("/TicTacToe/PC"))
+        .then((response) => response.json())
+        .then((data) => {
+            console.log("PC ROOM", data)
+            navigate(`/TicTacToe/PC/${data.roomId}`)
+        })
     }
 
     return (
