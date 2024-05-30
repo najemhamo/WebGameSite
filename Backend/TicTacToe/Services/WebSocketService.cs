@@ -3,8 +3,6 @@ using System.Text.Json;
 using System.Text;
 using Models;
 using GameLogic;
-using System.Net.Sockets;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace Services
 {
@@ -90,7 +88,7 @@ namespace Services
 
         }
 
-        public async Task PlayerMove(PlayerMove move)
+        public async Task MultiPlayerMove(PlayerMove move)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
@@ -131,6 +129,79 @@ namespace Services
                 if (socket.State == WebSocketState.Open)
                 {
                     await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+            }
+        }
+        public async Task SinglePlayerMove(PlayerMove move)
+        {
+            var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
+            if (room == null)
+            {
+                return;
+            }
+
+            room.Board = move.Board;
+            var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
+            room.Board = updatedBoard;
+
+            if (state == GameState.Win)
+            {
+                move.GameState = (GameState)1;
+                room.Winner = move.Player;
+            }
+            else if (state == GameState.Draw)
+            {
+                move.GameState = (GameState)2;
+            }
+            else
+            {
+                move.GameState = GameState.StillPlaying;
+            }
+
+            var moveJson = JsonSerializer.Serialize(new
+            {
+                Board = move.Board,
+                GameState = move.GameState,
+                Player = move.Player,
+                Winner = room.Winner
+            });
+
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+            }
+
+            // AI Move
+            if (state == GameState.StillPlaying && move.Player == "X")
+            {
+                room.Board = TicTacToeGame.MakeComputerMove(room.Board, room.Difficulty);
+                (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
+                room.Board = updatedBoard;
+
+                var computerMove = new PlayerMove
+                {
+                    RoomId = move.RoomId,
+                    Board = room.Board,
+                    Player = "O",
+                    GameState = state
+                };
+
+                moveJson = JsonSerializer.Serialize(new
+                {
+                    Board = computerMove.Board,
+                    GameState = (int)computerMove.GameState,
+                    Player = computerMove.Player
+                });
+
+                foreach (var socket in _sockets)
+                {
+                    if (socket.State == WebSocketState.Open)
+                    {
+                        await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                    }
                 }
             }
         }

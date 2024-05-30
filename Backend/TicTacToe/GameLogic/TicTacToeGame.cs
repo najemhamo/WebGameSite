@@ -34,5 +34,76 @@ namespace GameLogic
 
             return (GameState.StillPlaying, board);
         }
+        public static int[] MakeComputerMove(int[] board, string difficulty)
+        {
+            switch (difficulty)
+            {
+                case "Easy":
+                    return MakeRandomMove(board);
+                case "Hard":
+                    return MakeStrategicMove(board);
+                default:
+                    return MakeRandomMove(board);
+            }
+        }
+
+        private static int[] MakeRandomMove(int[] board)
+        {
+            var emptyPositions = board.Select((value, index) => new { value, index })
+                                    .Where(x => x.value == 0)
+                                    .Select(x => x.index)
+                                    .ToList();
+            if (emptyPositions.Count == 0)
+            {
+                return board;
+            }
+
+            var random = new Random();
+            int move = emptyPositions[random.Next(emptyPositions.Count)];
+            board[move] = 2; // Assuming the computer is always 'O'
+
+            return board;
+        }
+
+        private static int[] MakeStrategicMove(int[] board)
+        {
+            // This is a simple strategy that could be improved in future extensions of the game
+            var emptyPositions = board.Select((value, index) => new { value, index })
+                                    .Where(x => x.value == 0)
+                                    .Select(x => x.index)
+                                    .ToList();
+            if (emptyPositions.Count == 0)
+            {
+                return board;
+            }
+
+            // Try to win
+            foreach (var pos in emptyPositions)
+            {
+                var testBoard = (int[])board.Clone();
+                testBoard[pos] = 2;
+                if (CheckGameState(testBoard).Item1 == GameState.Win)
+                {
+                    board[pos] = 2;
+                    return board;
+                }
+            }
+
+            // Block opponent from winning
+            foreach (var pos in emptyPositions)
+            {
+                var testBoard = (int[])board.Clone();
+                testBoard[pos] = 1;
+                if (CheckGameState(testBoard).Item1 == GameState.Win)
+                {
+                    board[pos] = 2;
+                    return board;
+                }
+            }
+
+            // Otherwise, make a random move
+            return MakeRandomMove(board);
+        }
     }
+
 }

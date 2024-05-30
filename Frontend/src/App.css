@@ -1,6 +1,4 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
@@ -28,8 +26,10 @@
 .container {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-top: 50px;
   gap: 20px;
+  height: 40vw;
 }
 
 .header {
@@ -88,8 +88,51 @@
 }
 
 
+
+.nameContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10vw;
+  font-size: 1.7vw;
+  font-style: italic;
+  font-weight: bold;
+  color: yellow;
+}
+
 .grid {
   display: grid;
-  gap: 10px;
+  gap: 3vw;
   grid-template-columns: repeat(3, 1fr);
+}
+
+.playButton {
+  width: 5vw;
+  height: 3vw;
+}
+
+.gameBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 23vw;
+}
+
+.waiting {
+  align-items: start;
+  justify-content: start;
+  font-size: 2vw;
+  margin-top: 7vw;
+  min-height: 35vh;
+}
+
+.gameFooter {
+  font-size: 1.2vw;
+}
+
+.gameFooter button {
+  float: left;
+}
+
+.buttonRight {
+  float: right;
 }
