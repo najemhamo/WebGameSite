@@ -110,7 +110,10 @@ namespace Endpoints
                 return Results.BadRequest();
             }
             await gameRepository.CreateSinglePlayerRoom(playerName, difficulty);
-            return Results.Ok(GetAllRooms);
+
+            // Return the new created room
+            var rooms = await gameRepository.GetGameRooms();
+            return Results.Ok(rooms.LastOrDefault());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
