@@ -96,7 +96,7 @@ namespace Endpoints
                 RoomId = Guid.NewGuid(),
                 Id = GameRoom.GameRooms.Count + 1
             };
-            await gameRepository.CreateGameRoom(newRoom);
+            // await gameRepository.CreateGameRoom(newRoom);
             return Results.Ok();
         }
 
