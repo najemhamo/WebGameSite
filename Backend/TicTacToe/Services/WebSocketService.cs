@@ -88,7 +88,7 @@ namespace Services
 
         }
 
-        public async Task PlayerMove(PlayerMove move)
+        public async Task MultiPlayerMove(PlayerMove move)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
@@ -132,7 +132,7 @@ namespace Services
                 }
             }
         }
-        public async Task PlayerMoveSinglePlayer(PlayerMove move)
+        public async Task SinglePlayerMove(PlayerMove move)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
