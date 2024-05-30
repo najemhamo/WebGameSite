@@ -15,7 +15,7 @@ namespace Endpoints
             game.MapGet("rooms/{roomId}", GetRoom);
             game.MapPost("rooms/{roomId}/join", JoinRoom);
             game.MapPost("rooms/{roomId}/leave", LeaveRoom);
-            game.MapPost("rooms/{roomId}/MultiPlaterMove", MultiPlayerMove);
+            game.MapPost("rooms/{roomId}/MultiPlayerMove", MultiPlayerMove);
             game.MapPost("rooms/{roomId}/SinglePlayerMove", SinglePlayerMove);
             game.MapPost("rooms/create", CreateRoom);
             game.MapDelete("rooms/{roomId}/delete", DeleteRoom);

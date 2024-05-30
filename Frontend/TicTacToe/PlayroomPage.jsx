@@ -12,7 +12,7 @@ export default function PlayroomPage(props)
     const [player, setPlayer] = useState(0) // CHANGE clean this up!
     const [winner, setWinner] = useState(null)
     const [players, setPlayers] = useState([])
-    const [canStart, setCanStart] = useState(false)
+    const [canStart, setCanStart] = useState(true)
     const [currentPlayer, setCurrentPlayer] = useState(0)
 
     // GET the room
@@ -112,7 +112,7 @@ export default function PlayroomPage(props)
             })
         }
         
-        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/move`, postOptions)
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/MultiPlayerMove`, postOptions)
         .then(() => {
             socket.send(JSON.stringify({
             type: "madeMove",

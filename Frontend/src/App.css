@@ -107,14 +107,15 @@
 
 .playButton {
   width: 5vw;
-  height: 3vw;
+  height: 5vw;
+  font-size: 1.5vw;
 }
 
 .gameBody {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 23vw;
+  min-height: 30vw;
 }
 
 .waiting {

@@ -4,6 +4,7 @@ import TicTacToeHomePage from './TicTacToeHomePage'
 import PlayroomPage from './PlayroomPage'
 import PCPlayRoom from './PCPlayRoom';
 import RoomPage from './RoomPage'
+import ChooseDifficulty from './Components/DifficultyComponent';
 
 export default function TicTacToePage()
 {
@@ -16,7 +17,8 @@ export default function TicTacToePage()
             <Route path='/TicTacToe' element={<TicTacToeHomePage/>}/>
             <Route path='/TicTacToe/Rooms' element={<RoomPage socket={socket} playerName={playerName} setPlayerName={setPlayerName}/>}/>
             <Route path='/TicTacToe/:roomId/:playerName' element={<PlayroomPage socket={socket}/>}/>
-            <Route path='/TicTacToe/PC/:roomId' element={<PCPlayRoom playerName={playerName}/>}/>
+            <Route path='/TicTacToe/PC' element={<ChooseDifficulty playerName={playerName} setPlayerName={setPlayerName}/>}/>
+            <Route path='/TicTacToe/PC/:roomId' element={<PCPlayRoom playerName={playerName} socket={socket}/>}/>
         </Routes>
         </>
     )

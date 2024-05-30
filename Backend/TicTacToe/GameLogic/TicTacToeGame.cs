@@ -60,7 +60,7 @@ namespace GameLogic
 
             var random = new Random();
             int move = emptyPositions[random.Next(emptyPositions.Count)];
-            board[move] = 2; // Assuming the computer is always 'O'
+            board[move] = 2; // Assuming the computer is always 'X'
 
             return board;
         }

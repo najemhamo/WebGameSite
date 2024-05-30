@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function PCPlayRoom(props)
 {
-    const {playerName} = props
+    const {playerName, socket} = props
     const { roomId } = useParams();
     const navigate = useNavigate()
 
@@ -13,7 +13,7 @@ export default function PCPlayRoom(props)
     const makeMove = (index) =>
     {
         let tmpBoard = board
-        tmpBoard[index] = "O"
+        tmpBoard[index] = 1
         
         const postOptions = {
             method: "POST",
@@ -26,14 +26,14 @@ export default function PCPlayRoom(props)
             })
         }
         
-        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/move`, postOptions)
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/SinglePlayerMove`, postOptions)
         .then(() => {
 
-            fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`)
+            fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
             .then((response) => response.json())
             .then((data) => {
-                console.log("WINNER IN PCPLAY", data)
                 setBoard(data.board)
+                console.log("Response", data)
 
                 if (data.winner)
                     setWinner(data.winner)
@@ -71,8 +71,8 @@ export default function PCPlayRoom(props)
                         <button
                         key={index}
                         id={piece === 3 ? "redText" : ""}
-                        className={winner ? "disabled playButton" : "playButton"}
-                        disabled={winner}
+                        className={winner || piece !== 0 ? "disabled playButton" : "playButton"}
+                        disabled={winner || piece !== 0}
                         onClick={() => makeMove(index)}>{piece === 1 ? "O" : piece === 2 ? "X" : piece === 3 ? winner : ""}
                         </button>
                     ))}
