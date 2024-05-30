@@ -15,7 +15,8 @@ namespace Endpoints
             game.MapGet("rooms/{roomId}", GetRoom);
             game.MapPost("rooms/{roomId}/join", JoinRoom);
             game.MapPost("rooms/{roomId}/leave", LeaveRoom);
-            game.MapPost("rooms/{roomId}/move", PlayerMove);
+            game.MapPost("rooms/{roomId}/MultiPlaterMove", MultiPlayerMove);
+            game.MapPost("rooms/{roomId}/SinglePlayerMove", SinglePlayerMove);
             game.MapPost("rooms/create", CreateRoom);
             game.MapDelete("rooms/{roomId}/delete", DeleteRoom);
         }
@@ -81,23 +82,35 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> PlayerMove(PlayerMove move, WebSocketService webSocketService)
+        private static async Task<IResult> MultiPlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
-            await webSocketService.PlayerMove(move);
+            await webSocketService.MultiPlayerMove(move);
             return Results.Ok();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        private static async Task<IResult> CreateRoom(IGameRepository gameRepository)
+        public static async Task<IResult> SinglePlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
-            var newRoom = new GameRoom
-            {
-                RoomId = Guid.NewGuid(),
-                Id = GameRoom.GameRooms.Count + 1
-            };
-            await gameRepository.CreateGameRoom(newRoom);
+            await webSocketService.SinglePlayerMove(move);
             return Results.Ok();
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        private static async Task<IResult> CreateRoom(IGameRepository gameRepository, [FromQuery] string playerName, [FromQuery] string difficulty)
+        {
+            if (string.IsNullOrEmpty(playerName) || string.IsNullOrEmpty(difficulty))
+            {
+                return Results.BadRequest();
+            }
+            if (difficulty != "Easy" && difficulty != "Hard")
+            {
+                return Results.BadRequest();
+            }
+            await gameRepository.CreateSinglePlayerRoom(playerName, difficulty);
+            return Results.Ok(GetAllRooms);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]

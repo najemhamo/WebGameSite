@@ -20,6 +20,7 @@ namespace Repository
             var newRoom = new GameRoom
             {
                 RoomId = Guid.NewGuid(),
+                Id = GameRoom.GameRooms.Count + 1,
                 RoomCapacity = 1,
                 PlayerX = playerName,
                 Difficulty = difficulty
