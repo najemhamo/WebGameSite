@@ -49,12 +49,12 @@ namespace Services
 
             if (room.RoomCapacity == 0)
             {
-                room.PlayerX = playerName;
+                room.PlayerO = playerName;
             }
 
             else if (room.RoomCapacity == 1)
             {
-                room.PlayerO = playerName;
+                room.PlayerX = playerName;
             }
 
 
@@ -134,6 +134,7 @@ namespace Services
         }
         public async Task SinglePlayerMove(PlayerMove move)
         {
+
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
             {
@@ -175,17 +176,31 @@ namespace Services
             }
 
             // AI Move
-            if (state == GameState.StillPlaying && move.Player == "X")
+            if (state == GameState.StillPlaying && move.Player == "O")
             {
                 room.Board = TicTacToeGame.MakeComputerMove(room.Board, room.Difficulty);
                 (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
                 room.Board = updatedBoard;
 
-                var computerMove = new PlayerMove
+                if (state == GameState.Win)
+                {
+                    move.GameState = (GameState)1;
+                    room.Winner = "X";
+                }
+                else if (state == GameState.Draw)
+                {
+                    move.GameState = (GameState)2;
+                }
+                else
+                {
+                    move.GameState = GameState.StillPlaying;
+                }
+
+                    var computerMove = new PlayerMove
                 {
                     RoomId = move.RoomId,
                     Board = room.Board,
-                    Player = "O",
+                    Player = "X",
                     GameState = state
                 };
 
@@ -204,6 +219,8 @@ namespace Services
                     }
                 }
             }
+
+            return;
         }
 
         public async Task ResetGame(Guid roomId)

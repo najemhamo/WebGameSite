@@ -3,19 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function PlayroomPage(props)
 {
-    const { roomId, playerName } = useParams();
     const {socket} = props
-
+    const { roomId, playerName } = useParams();
     const navigate = useNavigate()
+
     const [id, setId] = useState(0)
     const [board, setBoard] = useState([])
     const [player, setPlayer] = useState(0) // CHANGE clean this up!
     const [winner, setWinner] = useState(null)
     const [players, setPlayers] = useState([])
-    const [canStart, setCanStart] = useState(false)
+    const [canStart, setCanStart] = useState(true)
     const [currentPlayer, setCurrentPlayer] = useState(0)
-
-    // CHANGE API for resetting the board
 
     // GET the room
     useEffect(() =>
@@ -78,6 +76,11 @@ export default function PlayroomPage(props)
         }
     }
 
+    const restartGame = () =>
+    {
+        // CHANGE implement restart of game
+    }
+
     // POST leave room
     const leaveRoom = () =>
     {
@@ -109,7 +112,7 @@ export default function PlayroomPage(props)
             })
         }
         
-        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/move`, postOptions)
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/MultiPlayerMove`, postOptions)
         .then(() => {
             socket.send(JSON.stringify({
             type: "madeMove",
@@ -119,7 +122,7 @@ export default function PlayroomPage(props)
             fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
             .then((response) => response.json())
             .then((data) => {
-                console.log("DATA", data)
+                console.log("WINNER PLAYER", data)
                 setBoard(data.board)
 
                 if (data.winner)
@@ -137,17 +140,14 @@ export default function PlayroomPage(props)
         setCurrentPlayer((currentPlayer + 1) % 2)
     }
 
-
-    // CHANGE test with Light Mode
-
     return (
         <div>
             <header>
                 <h2 className="smallerHeader">Game Room {id}</h2>
                 <div className="nameContainer">
-                    <p id={winner ? "redText" : ""}>Player O{players[0]}</p>
+                    <p id={winner === "O" ? "redText" : ""}>Player O: {players[0]}</p>
                     <p>VS</p>
-                    <p id={winner ? "redText" : ""}>{players[1]}</p>
+                    <p id={winner === "X" ? "redText" : ""}>Player X: {players[1]}</p>
                     {/* CHANGE fix this to correct player*/}
                 </div>
             </header>
@@ -169,7 +169,7 @@ export default function PlayroomPage(props)
             </body>
 
             <div className="gameFooter">
-                <button>Restart Game</button>
+                <button onClick={restartGame}>Restart Game</button>
                 <div className="buttonRight">
                     <button onClick={leaveRoom}>End Game</button>
                 </div>
