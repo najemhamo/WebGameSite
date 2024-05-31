@@ -18,6 +18,14 @@ export default function QuestionPage() {
     const answers = state.answers;
     const userAnswers = state.userAnswers;
 
+    if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
+        return <div>Error: Invalid question index, please try again</div>;
+    }
+
+    if (!Array.isArray(answers[currentQuestionIndex])) {
+        return <div>Error: Answers data not found for this question.</div>;
+    }
+
     const nextQuestion = () => {
         if (selectedAnswer === '') {
             alert('Error: No answer selected, please select an answer to proceed')
