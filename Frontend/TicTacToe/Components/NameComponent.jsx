@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-export default function NameComponent(props)
+export default function ChooseName(props)
 {
     const {setPlayerName} = props
     const [errorMessage, setErrorMessage] = useState(" ")

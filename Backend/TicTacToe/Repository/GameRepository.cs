@@ -22,7 +22,8 @@ namespace Repository
                 RoomId = Guid.NewGuid(),
                 Id = GameRoom.GameRooms.Count + 1,
                 RoomCapacity = 1,
-                PlayerX = playerName,
+                PlayerX = "PC",
+                PlayerO = playerName,
                 Difficulty = difficulty
             };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import NameComponent from "./Components/NameComponent"
+import ChooseName from "./Components/NameComponent"
 
 export default function RoomPage(props)
 {
@@ -108,7 +108,7 @@ export default function RoomPage(props)
                 </div>
             </div>}
 
-            {playerName === "" && <NameComponent setPlayerName={setPlayerName}/>}
+            {playerName === "" && <ChooseName setPlayerName={setPlayerName}/>}
         </>
     )
 }
