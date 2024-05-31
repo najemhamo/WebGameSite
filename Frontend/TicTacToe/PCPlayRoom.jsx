@@ -62,7 +62,7 @@ export default function PCPlayRoom(props)
     {
         const deleteOptions = {method: "DELETE"};
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/delete`, deleteOptions)
-        .then(navigate("/TicTacToe"))
+        .then(navigate("/TicTacToe/PC"))
     }
 
     return (

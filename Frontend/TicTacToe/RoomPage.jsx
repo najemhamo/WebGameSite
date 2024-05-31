@@ -22,11 +22,7 @@ export default function RoomPage(props)
         const postOptions = {method: "POST"};
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/join?playerName=${playerName}`, postOptions)
         .then(() => {
-            socket.send(JSON.stringify({
-            type: "joinRoom",
-            id: roomId,
-            }))
-        
+            socket.send(JSON.stringify({type: "joinRoom", id: roomId}))
             navigate(`/TicTacToe/${roomId}`)
         })   
     }

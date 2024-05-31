@@ -10,12 +10,12 @@ export default function HomePage()
             <h1>Web Game Site</h1>
         </header>
 
-        <body>
+        <div>
             <ol>
                 <li onClick={() => navigate("/TicTacToe")}>Tic Tac Toe</li>
                 <li onClick={() => navigate("/Quiz")}>Quiz</li>
             </ol>
-        </body>
+        </div>
     </>
     )
 }

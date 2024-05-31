@@ -9,12 +9,13 @@ export default function PlayroomPage(props)
 
     const [id, setId] = useState(0)
     const [board, setBoard] = useState([])
-    const [player, setPlayer] = useState(0) // CHANGE clean this up!
+    const [player, setPlayer] = useState(0)
     const [winner, setWinner] = useState(null)
     const [players, setPlayers] = useState([])
     const [canStart, setCanStart] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState(0)
     
+    const [score, setScore] = useState([])
     const [restart, setRestart] = useState(false)
     const [restartText, setRestartText] = useState("")
 
@@ -25,8 +26,10 @@ export default function PlayroomPage(props)
         .then((response) => response.json())
         .then((data) => {
 
-            setBoard(data.board)
             setId(data.id)
+            setBoard(data.board)
+            // setScore(data.score)
+
             const tmpPlayers = [data.playerO || "", data.playerX || ""]
             setPlayers(tmpPlayers)
 
@@ -53,9 +56,9 @@ export default function PlayroomPage(props)
         let Xes = 0
         let Oes = 0
 
-        board.map((place) => {
-            if (place === 1) Oes++
-            else if (place === 2) Xes++
+        board.map((piece) => {
+            if (piece === 1) Oes++
+            else if (piece === 2) Xes++
         })
 
         if (Oes > Xes)
@@ -84,9 +87,7 @@ export default function PlayroomPage(props)
 
         // When a player has left the room
         else if (messageObj.type === "leaveRoom")
-        {
             setCanStart(false)
-        }
 
         // When the board should be updated with the new move
         else if (messageObj.type === "madeMove")
@@ -102,6 +103,7 @@ export default function PlayroomPage(props)
         {
             setWinner(messageObj.winner)
             setBoard(messageObj.board)
+            setScore(messageObj.score)
         }
 
         // When a player wants to restart the game
@@ -123,19 +125,13 @@ export default function PlayroomPage(props)
     {
         if (!restart)
         {
-            socket.send(JSON.stringify({
-            type: "restart?"
-            }))
-
+            socket.send(JSON.stringify({type: "restart?"}))
             setRestartText("1/2")
             setRestart(true)
         }
         else
         {
-            socket.send(JSON.stringify({
-            type: "restart!"
-            }))
-
+            socket.send(JSON.stringify({type: "restart!"}))
             setRestartText("")
             restartGame()
         }
@@ -156,6 +152,7 @@ export default function PlayroomPage(props)
         .then((response) => response.json())
         .then((data) => {
             setBoard(data.board)
+            setScore(data.score)
             setWinner(data.winner)
             setCurrentPlayer(0)
             setRestart(false)
@@ -168,10 +165,7 @@ export default function PlayroomPage(props)
         const postOptions = {method: "POST"};
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/leave`, postOptions)
         .then(() => {
-            socket.send(JSON.stringify({
-            type: "leaveRoom",
-            id: roomId,
-            }))
+            socket.send(JSON.stringify({type: "leaveRoom", id: roomId}))
             navigate("/TicTacToe/Rooms")
         })
     }
@@ -195,10 +189,7 @@ export default function PlayroomPage(props)
         
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/MultiPlayerMove`, postOptions)
         .then(() => {
-            socket.send(JSON.stringify({
-            type: "madeMove",
-            place: index
-            }))
+            socket.send(JSON.stringify({type: "madeMove", place: index}))
 
             fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
             .then((response) => response.json())
@@ -208,10 +199,20 @@ export default function PlayroomPage(props)
                 if (data.winner)
                 {
                     setWinner(data.winner)
+
+                    let tmpScore = [...score]
+                    if (data.winner === "O")
+                        tmpScore[0]++
+                    else
+                        tmpScore[1]++
+
+                    setScore(tmpScore)
+
                     socket.send(JSON.stringify({
                     type: "haveWon",
                     winner: data.winner,
-                    board: data.board
+                    board: data.board,
+                    score: data.score
                     }))
                 }
             })
@@ -225,9 +226,11 @@ export default function PlayroomPage(props)
             <header>
                 <h2 className="smallerHeader">Game Room {id}</h2>
                 <div className="nameContainer">
+                    <p>{score[0]}</p>
                     <p id={winner === "O" ? "redText" : ""}>Player O: {players[0]}</p>
                     <p>VS</p>
                     <p id={winner === "X" ? "redText" : ""}>Player X: {players[1]}</p>
+                    <p>{score[1]}</p>
                 </div>
             </header>
 
