@@ -205,5 +205,32 @@ namespace Services
                 }
             }
         }
+
+        public async Task ResetGame(Guid roomId)
+        {
+            var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
+            if (room == null)
+            {
+                return;
+            }
+
+            room.Board = new int[9]; // Reset the board
+            room.Winner = null; // Reset the winner
+            var moveJson = JsonSerializer.Serialize(new
+            {
+                Board = room.Board,
+                GameState = (GameState)0, // Reset the game state to the initial state
+                Player = "",
+                Winner = room.Winner
+            });
+
+            foreach (var socket in _sockets)
+            {
+                if (socket.State == WebSocketState.Open)
+                {
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
+                }
+            }
+        }
     }
 }

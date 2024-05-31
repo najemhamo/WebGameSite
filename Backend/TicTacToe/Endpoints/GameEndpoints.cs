@@ -19,6 +19,7 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/SinglePlayerMove", SinglePlayerMove);
             game.MapPost("rooms/create", CreateRoom);
             game.MapDelete("rooms/{roomId}/delete", DeleteRoom);
+            game.MapPost("rooms/{roomId}/reset", ResetGame);
         }
 
 
@@ -126,6 +127,15 @@ namespace Endpoints
             }
             await gameRepository.DeleteGameRoom(roomId);
             return Results.Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        private static async Task<IResult> ResetGame(IGameRepository gameRepository, Guid roomId, WebSocketService webSocketService)
+        {
+            await webSocketService.ResetGame(roomId);
+            var currentRoom = await gameRepository.GetGameRoom(roomId);
+            return Results.Ok(currentRoom);
         }
     }
 }
