@@ -21,6 +21,12 @@ export default function ScorePage () {
                 <h2>
                     Good job!
                 </h2>
+                <div>
+                    Credits: All questions were retrieved from Nyheter24, and can be accessed through the link: 
+                    <a href="https://nyheter24.se/quiz/977288-quiz-till-nyar-vad-hande-under-aret-som-gatt" target="_blank" rel="noopener noreferrer">
+                        https://nyheter24.se/quiz/977288-quiz-till-nyar-vad-hande-under-aret-som-gatt
+                    </a>
+                </div>
                 <button onClick={backToHomePage}>
                     Back to HomePage
                 </button>
