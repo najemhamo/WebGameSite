@@ -12,17 +12,14 @@ export default function ChooseDifficulty(props)
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                playerName: playerName, // CHANGE fix this
+                playerName: playerName,
                 difficulty: difficulty
             })
         }
 
         fetch(`http://localhost:5007/tictactoe/rooms/create?playerName=${playerName}&difficulty=${difficulty}`, postOptions)
         .then((response) => response.json())
-        .then((data) => {
-            console.log("PC ROOM", data)
-            navigate(`/TicTacToe/PC/${data.roomId}`)
-        })
+        .then((data) => navigate(`/TicTacToe/PC/${data.roomId}`))
     }
 
     return (

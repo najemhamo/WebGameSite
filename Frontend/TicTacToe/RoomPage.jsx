@@ -26,9 +26,8 @@ export default function RoomPage(props)
             type: "joinRoom",
             id: roomId,
             }))
-
-            const place = rooms.filter((room) => {return room.roomId === roomId})[0].roomCapacity === 0 ? "O" : "X"
-            navigate(`/TicTacToe/${roomId}/${place}-${playerName}`)
+        
+            navigate(`/TicTacToe/${roomId}`)
         })   
     }
 

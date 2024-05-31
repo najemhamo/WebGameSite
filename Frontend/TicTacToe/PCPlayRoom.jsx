@@ -33,8 +33,6 @@ export default function PCPlayRoom(props)
             .then((response) => response.json())
             .then((data) => {
                 setBoard(data.board)
-                console.log("Response", data)
-
                 if (data.winner)
                     setWinner(data.winner)
             })
@@ -43,7 +41,20 @@ export default function PCPlayRoom(props)
 
     const restartGame = () =>
     {
-
+        const postOptions = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                roomId: roomId
+            })
+        }
+        
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
+        .then((response) => response.json())
+        .then((data) => {
+            setBoard(data.board)
+            setWinner(data.winner)
+        })
     }
 
     // POST leave room

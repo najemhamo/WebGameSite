@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function PlayroomPage(props)
 {
-    const {socket} = props
-    const { roomId, playerName } = useParams();
+    const {socket, playerName} = props
+    const { roomId } = useParams();
     const navigate = useNavigate()
 
     const [id, setId] = useState(0)
@@ -12,8 +12,11 @@ export default function PlayroomPage(props)
     const [player, setPlayer] = useState(0) // CHANGE clean this up!
     const [winner, setWinner] = useState(null)
     const [players, setPlayers] = useState([])
-    const [canStart, setCanStart] = useState(true)
+    const [canStart, setCanStart] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState(0)
+    
+    const [restart, setRestart] = useState(false)
+    const [restartText, setRestartText] = useState("")
 
     // GET the room
     useEffect(() =>
@@ -32,16 +35,32 @@ export default function PlayroomPage(props)
                 if (socket.readyState === WebSocket.OPEN)
                     socket.send(JSON.stringify({type: "readyToStart", players: tmpPlayers}))
                 
-                if (playerName[0] === "X")
+                if (playerName === data.playerX)
                     setPlayer(1)
 
                 if (data.winner)
                     setWinner(data.winner)
                 
                 setCanStart(true)
+                checkBoard(data.board)
             }
         })
     }, [])
+
+    // Checks for which player's turn it is
+    const checkBoard = (board) =>
+    {
+        let Xes = 0
+        let Oes = 0
+
+        board.map((place) => {
+            if (place === 1) Oes++
+            else if (place === 2) Xes++
+        })
+
+        if (Oes > Xes)
+            setCurrentPlayer(1)
+    }
 
     // Socket listening
     socket.onmessage = function (event)
@@ -51,13 +70,23 @@ export default function PlayroomPage(props)
         // When the game can start
         if (messageObj.type === "readyToStart")
         {
-            setPlayers(messageObj.players)
+            // If a new player has joined the room
+            if (messageObj.players[1] !== players[1])
+            {
+                socket.send(JSON.stringify({type: "restart!"}))
+                setPlayers(messageObj.players)
+                setRestartText("")
+                restartGame()
+            }
+
             setCanStart(true)
         }
 
         // When a player has left the room
         else if (messageObj.type === "leaveRoom")
+        {
             setCanStart(false)
+        }
 
         // When the board should be updated with the new move
         else if (messageObj.type === "madeMove")
@@ -74,15 +103,67 @@ export default function PlayroomPage(props)
             setWinner(messageObj.winner)
             setBoard(messageObj.board)
         }
+
+        // When a player wants to restart the game
+        else if (messageObj.type === "restart?")
+        {
+            setRestartText("1/2")
+            setRestart(true)
+        }
+
+        // When the board should restart
+        else if (messageObj.type === "restart!")
+        {
+            setRestartText("")
+            restartGame()
+        }
     }
 
+    const tryRestart = () =>
+    {
+        if (!restart)
+        {
+            socket.send(JSON.stringify({
+            type: "restart?"
+            }))
+
+            setRestartText("1/2")
+            setRestart(true)
+        }
+        else
+        {
+            socket.send(JSON.stringify({
+            type: "restart!"
+            }))
+
+            setRestartText("")
+            restartGame()
+        }
+    }
+
+    // POST restart game
     const restartGame = () =>
     {
-        // CHANGE implement restart of game
+        const postOptions = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                roomId: roomId
+            })
+        }
+        
+        fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
+        .then((response) => response.json())
+        .then((data) => {
+            setBoard(data.board)
+            setWinner(data.winner)
+            setCurrentPlayer(0)
+            setRestart(false)
+        })
     }
 
     // POST leave room
-    const leaveRoom = () =>
+    const endGame = () =>
     {
         const postOptions = {method: "POST"};
         fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/leave`, postOptions)
@@ -122,7 +203,6 @@ export default function PlayroomPage(props)
             fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
             .then((response) => response.json())
             .then((data) => {
-                console.log("WINNER PLAYER", data)
                 setBoard(data.board)
 
                 if (data.winner)
@@ -148,7 +228,6 @@ export default function PlayroomPage(props)
                     <p id={winner === "O" ? "redText" : ""}>Player O: {players[0]}</p>
                     <p>VS</p>
                     <p id={winner === "X" ? "redText" : ""}>Player X: {players[1]}</p>
-                    {/* CHANGE fix this to correct player*/}
                 </div>
             </header>
 
@@ -164,14 +243,17 @@ export default function PlayroomPage(props)
                         </button>
                     ))}
                 </div>
-                
                 {!canStart && <p>Waiting for another player...</p>}
             </body>
 
             <div className="gameFooter">
-                <button onClick={restartGame}>Restart Game</button>
+                <div className="restartText">
+
+                <p>{restartText}</p>
+                </div>
+                <button onClick={tryRestart}>Restart Game</button>
                 <div className="buttonRight">
-                    <button onClick={leaveRoom}>End Game</button>
+                    <button onClick={endGame}>End Game</button>
                 </div>
             </div>
         </div>
