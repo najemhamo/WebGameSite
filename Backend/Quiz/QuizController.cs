@@ -6,7 +6,7 @@ using System.Linq;
 namespace Backend.Quiz
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("quiz")]
     public class QuizController : ControllerBase
     {
         private readonly Scraper _scraper;
@@ -42,14 +42,6 @@ namespace Backend.Quiz
         {
             var (_, _, _, rightAnswers) = _scraper.ScrapeQuiz(); 
             return Ok(rightAnswers);
-        }
-
-        [HttpPost("submit")]
-        public IActionResult SubmitAnswers([FromBody] List<string> userAnswers)
-        {
-            var (_, _, _, rightAnswers) = _scraper.ScrapeQuiz();
-            int score = userAnswers.Zip(rightAnswers, (userAnswer, rightAnswer) => userAnswer == rightAnswer).Count(correct => correct);
-            return Ok(new { Score = score });
         }
     }
 }

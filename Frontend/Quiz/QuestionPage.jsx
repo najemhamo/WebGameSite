@@ -8,7 +8,7 @@ export default function QuestionPage() {
     const currentQuestionIndex = parseInt(questionId) - 1;
     const [selectedAnswer, setSelectedAnswer] = useState('');
 
-    if (!state || !state.questions || !state.descriptions || !state.answers)
+    if (!state || !state.questions || !state.descriptions || !state.answers || !state.rightAnswers)
     {
         return <div>Error: Quiz data not found.</div>;
     }
@@ -17,6 +17,7 @@ export default function QuestionPage() {
     const descriptions = state.descriptions;
     const answers = state.answers;
     const userAnswers = state.userAnswers;
+    const rightAnswers = state.rightAnswers;
 
     if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
         return <div>Error: Invalid question index, please try again</div>;
@@ -35,7 +36,7 @@ export default function QuestionPage() {
         userAnswers[currentQuestionIndex] = selectedAnswer[0];
 
         if (currentQuestionIndex < questions.length - 1){
-            navigate(`/Quiz/TakeQuiz/${currentQuestionIndex + 2}`, { state  });
+            navigate(`/Quiz/TakeQuiz/${currentQuestionIndex + 2}`, { state });
         } else {
             navigate('/Quiz/Submission', { state });
         }
