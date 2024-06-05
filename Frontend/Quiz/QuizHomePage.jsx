@@ -7,13 +7,16 @@ export default function QuizHomePage() {
     const [answers, setAnswers] = useState ([]);
     const [userAnswers, setUserAnswers] = useState([]);
     const [rightAnswers, setRightAnswers] = useState([]);
+    const [time, setTime] = useState([]);
 
     const navigate = useNavigate();
 
     const startQuiz = () => {
         const initialUserAnswers = new Array(15).fill(null);
         setUserAnswers(initialUserAnswers);
-        navigate('/Quiz/TakeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers}});
+        setTime(initialUserAnswers);
+
+        navigate('/Quiz/TakeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserAnswers}});
     };
 
     const backToHomePage = () => {
