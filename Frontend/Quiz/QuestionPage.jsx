@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function QuestionPage() {
@@ -7,17 +7,18 @@ export default function QuestionPage() {
     const {questionId} = useParams();
     const currentQuestionIndex = parseInt(questionId) - 1;
     const [selectedAnswer, setSelectedAnswer] = useState('');
+    const timestampRef = useRef(null);
 
-    if (!state || !state.questions || !state.descriptions || !state.answers || !state.rightAnswers)
+    useEffect(() => {
+            timestampRef.current = new Date().getTime();
+    }, [questionId]);
+
+    if (!state || !state.questions || !state.descriptions || !state.answers || !state.rightAnswers || !state.time)
     {
         return <div>Error: Quiz data not found.</div>;
     }
 
-    const questions = state.questions;
-    const descriptions = state.descriptions;
-    const answers = state.answers;
-    const userAnswers = state.userAnswers;
-    const rightAnswers = state.rightAnswers;
+    const { questions, descriptions, answers, userAnswers, rightAnswers, time } = state;
 
     if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
         return <div>Error: Invalid question index, please try again</div>;
@@ -32,8 +33,10 @@ export default function QuestionPage() {
             alert('Error: No answer selected, please select an answer to proceed')
             return;
         }
-
+        const timestamp2 = new Date().getTime();
+        const finalTimeStamp = Math.floor((timestamp2 - timestampRef.current)/1000);
         userAnswers[currentQuestionIndex] = selectedAnswer[0];
+        time[currentQuestionIndex] = finalTimeStamp;
 
         if (currentQuestionIndex < questions.length - 1){
             navigate(`/Quiz/TakeQuiz/${currentQuestionIndex + 2}`, { state });

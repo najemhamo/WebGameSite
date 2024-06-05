@@ -10,14 +10,11 @@ export default function SubmissionPage () {
         navigate(`/Quiz/TakeQuiz/${lastQuestionIndex}`, { state });
     };
 
-    const questions = state.questions;
-    const answers = state.answers;
-    const userAnswers = state.userAnswers;
-    const rightAnswers = state.rightAnswers;
+    const { questions, answers, userAnswers, rightAnswers, time } = state;
 
     const submit = async () => {
         try {
-            navigate('/Quiz/ScorePage', { state: { questions, answers, userAnswers, rightAnswers } });
+            navigate('/Quiz/ScorePage', { state: { questions, answers, userAnswers, rightAnswers, time } });
         } catch (error) {
             console.error('Error submitting answers:', error);
             alert('There was an error submitting your answers. Please try again.');
