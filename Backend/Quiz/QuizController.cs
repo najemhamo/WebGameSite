@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
+//API controller for Quiz
 namespace Backend.Quiz
 {
     [ApiController]
     [Route("quiz")]
     public class QuizController : ControllerBase
     {
+        //Create one instance of scraper
         private readonly Scraper _scraper;
 
         public QuizController() 
@@ -16,6 +18,7 @@ namespace Backend.Quiz
             _scraper = new Scraper();
         }
 
+        //fetch questions
         [HttpGet("questions")]
         public IActionResult GetQuestions()
         {
@@ -23,6 +26,7 @@ namespace Backend.Quiz
             return Ok(questions);
         }
 
+        //fetch descriptions
         [HttpGet("descriptions")]
         public IActionResult GetDescriptions()
         {
@@ -30,6 +34,7 @@ namespace Backend.Quiz
             return Ok(descriptions);
         }
 
+        //fetch answers
         [HttpGet("answers")]
         public IActionResult GetAnswers()
         {
@@ -37,6 +42,7 @@ namespace Backend.Quiz
             return Ok(answers);
         }
 
+        //fetch rightAnswers
         [HttpGet("rightAnswers")]
         public IActionResult GetRightAnswers() 
         {

@@ -1,32 +1,46 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ScorePage () {
+    // declare constants
     const navigate = useNavigate();
     const {state} = useLocation();
     const { userAnswers, rightAnswers, answers, questions, time } = state;
     
+    //function to navigate back to homepage
     const backToHomePage = () => {
         navigate('/');
     };
 
+    //function to process answers,
     const processAnswers = () => {
+        //set score and time to 0 by default
         let score = 0;
         let timeTotal = 0;
+
+        //loop through each question
         const results = questions.map((question, index) => {
+
+            //declare all constants
             const userAnswer = userAnswers[index];
             const rightAnswer = rightAnswers[index];
             const answerOptions = answers[index];
             const answerTime = time[index];
 
+            //find the question based on input from user / rightAnswer
             const userAnswerText = answerOptions.find(option => option.startsWith(userAnswer));
+
             const rightAnswerText = answerOptions.find(option => option.startsWith(rightAnswer));
 
+            //add elapsed time to the total
             timeTotal += answerTime;
 
+            //add one point to score if answer is correct
             const isCorrect = userAnswer === rightAnswer;
             if (isCorrect) score += 1;
 
+            //return the important variables
             return {
                 question,
                 userAnswerText,
@@ -36,11 +50,14 @@ export default function ScorePage () {
             };
         });
 
+        //return the important variables, outside each question
         return {results, score, timeTotal};
     };
 
+    //call the function processAnswers
     const {results, score, timeTotal} = processAnswers();
 
+    //Page
     return (
         <div className="center-col">
             <header>
