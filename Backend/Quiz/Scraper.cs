@@ -17,6 +17,7 @@ namespace Backend.Quiz
             _httpClient = new HttpClient();
         }
 
+        //lists to store all info
         public 
         (
             List<string> questions, 
@@ -37,6 +38,7 @@ namespace Backend.Quiz
             var htmlDocument = new HtmlDocument();
             htmlDocument.LoadHtml(html);
 
+            //starting indexes
             int questionIndex = 3;
             int descriptionIndex = 9;
             int answerIndex = 10;
