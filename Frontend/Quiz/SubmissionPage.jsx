@@ -10,24 +10,11 @@ export default function SubmissionPage () {
         navigate(`/Quiz/TakeQuiz/${lastQuestionIndex}`, { state });
     };
 
-    const userAnswers = state.userAnswers;
+    const { questions, answers, userAnswers, rightAnswers, time } = state;
+
     const submit = async () => {
         try {
-            const response = await fetch('http://localhost:5007/Quiz/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userAnswers)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to submit answers');
-            }
-
-            const data = await response.json();
-            const score = data.score;
-            navigate('/Quiz/ScorePage', { state: { score } });
+            navigate('/Quiz/ScorePage', { state: { questions, answers, userAnswers, rightAnswers, time } });
         } catch (error) {
             console.error('Error submitting answers:', error);
             alert('There was an error submitting your answers. Please try again.');
