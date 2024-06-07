@@ -65,7 +65,7 @@
 
 .nameButton {
   display: inline-block;
-  padding: 0.0vw 1.2vw;
+  padding: 0vw 1.2vw;
   font-size: 1.2vw;
   border-radius: 0;
   border: 1px solid transparent;
@@ -111,7 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 30vw;
+  min-height: 15vw;
 }
 
 .waiting {
@@ -124,6 +124,12 @@
 
 .gameFooter {
   font-size: 1.2vw;
+}
+
+.restartText {
+  display: flex;
+  font-size: 1.8vw;
+  margin-left: 3.5vw;
 }
 
 .gameFooter button {
