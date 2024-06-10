@@ -18,7 +18,7 @@ export default function RoomPage(props) {
   const joinRoom = (roomId) => {
     const postOptions = { method: "POST" };
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`,
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/join?playerName=${playerName}`,
       postOptions
     ).then(() => {
       socket.send(JSON.stringify({ type: "joinRoom", id: roomId }));

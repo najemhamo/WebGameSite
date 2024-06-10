@@ -20,12 +20,14 @@ export default function PlayroomPage(props) {
 
   // GET the room
   useEffect(() => {
-    fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`)
+    fetch(
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`
+    )
       .then((response) => response.json())
       .then((data) => {
         setId(data.id);
         setBoard(data.board);
-        setScore(data.score)
+        setScore(data.score);
 
         const tmpPlayers = [data.playerO || "", data.playerX || ""];
         setPlayers(tmpPlayers);
@@ -33,7 +35,11 @@ export default function PlayroomPage(props) {
         if (data.roomCapacity === 2) {
           if (socket.readyState === WebSocket.OPEN)
             socket.send(
-              JSON.stringify({ type: "readyToStart", players: tmpPlayers, roomId: roomId })
+              JSON.stringify({
+                type: "readyToStart",
+                players: tmpPlayers,
+                roomId: roomId,
+              })
             );
 
           if (playerName === data.playerX) setPlayer(1);
@@ -63,12 +69,10 @@ export default function PlayroomPage(props) {
     const message = JSON.parse(event.data);
 
     // Should only affect the players in the same room
-    if (message.roomId !== roomId)
-        return
+    if (message.roomId !== roomId) return;
 
     // When the game can start
     if (message.type === "readyToStart") {
-        
       // If a new player has joined the room
       if (message.players[1] !== players[1]) {
         socket.send(JSON.stringify({ type: "restart!", roomId: roomId }));
@@ -80,9 +84,7 @@ export default function PlayroomPage(props) {
     }
 
     // When a player has left the room
-    else if (message.type === "leaveRoom")
-        setCanStart(false);
-
+    else if (message.type === "leaveRoom") setCanStart(false);
     // When the board should be updated with the new move
     else if (message.type === "madeMove") {
       let newBoard = [...board];
@@ -133,7 +135,10 @@ export default function PlayroomPage(props) {
       }),
     };
 
-    fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/reset`, postOptions)
+    fetch(
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/reset`,
+      postOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setBoard(data.board);
@@ -176,9 +181,13 @@ export default function PlayroomPage(props) {
       `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/MultiPlayerMove`,
       postOptions
     ).then(() => {
-      socket.send(JSON.stringify({ type: "madeMove", place: index, roomId: roomId }));
+      socket.send(
+        JSON.stringify({ type: "madeMove", place: index, roomId: roomId })
+      );
 
-      fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+      fetch(
+        `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`
+      ) // CHANGE discuss this
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
@@ -198,7 +207,7 @@ export default function PlayroomPage(props) {
                 winner: data.winner,
                 board: data.board,
                 score: tmpScore,
-                roomId: roomId
+                roomId: roomId,
               })
             );
           }
@@ -236,11 +245,13 @@ export default function PlayroomPage(props) {
                 disabled={currentPlayer !== player || winner}
                 onClick={() => makeMove(index)}
               >
-                {   piece === 1 ?
-                    "O" : piece === 2 ?
-                    "X" : piece === 3 ?
-                    winner : ""
-                }
+                {piece === 1
+                  ? "O"
+                  : piece === 2
+                  ? "X"
+                  : piece === 3
+                  ? winner
+                  : ""}
               </button>
             ))}
         </div>
