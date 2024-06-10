@@ -43,10 +43,10 @@ export default function QuizHomePage() {
     const fetchQuizData = async () => {
         try {
             const [questionsResponse, descriptionsResponse, answersResponse, rightAnswersResponse] = await Promise.all([
-                fetch('http://localhost:5007/Quiz/questions'),
-                fetch('http://localhost:5007/Quiz/descriptions'),
-                fetch('http://localhost:5007/Quiz/answers'),
-                fetch('http://localhost:5007/Quiz/rightAnswers')
+                fetch('https://backend20240610112356.azurewebsites.net/quiz/questions'),
+                fetch('https://backend20240610112356.azurewebsites.net/quiz/descriptions'),
+                fetch('https://backend20240610112356.azurewebsites.net/quiz/answers'),
+                fetch('https://backend20240610112356.azurewebsites.net/quiz/rightAnswers')
             ]);
 
             //check if requests were 
