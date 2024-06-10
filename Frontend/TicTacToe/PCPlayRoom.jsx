@@ -25,10 +25,12 @@ export default function PCPlayRoom(props) {
     };
 
     fetch(
-      `http://localhost:5007/tictactoe/rooms/${roomId}/SinglePlayerMove`,
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/SinglePlayerMove`,
       postOptions
     ).then(() => {
-      fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+      fetch(
+        `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`
+      ) // CHANGE discuss this
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
@@ -46,7 +48,10 @@ export default function PCPlayRoom(props) {
       }),
     };
 
-    fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
+    fetch(
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/reset`,
+      postOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setBoard(data.board);
@@ -58,7 +63,7 @@ export default function PCPlayRoom(props) {
   const leaveRoom = () => {
     const deleteOptions = { method: "DELETE" };
     fetch(
-      `http://localhost:5007/tictactoe/rooms/${roomId}/delete`,
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/delete`,
       deleteOptions
     ).then(navigate("/TicTacToe"));
   };

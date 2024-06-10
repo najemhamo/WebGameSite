@@ -16,7 +16,7 @@ export default function ChooseDifficulty(props) {
     };
 
     fetch(
-      `http://localhost:5007/tictactoe/rooms/create?playerName=${playerName}&difficulty=${difficulty}`,
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/create?playerName=${playerName}&difficulty=${difficulty}`,
       postOptions
     )
       .then((response) => response.json())
