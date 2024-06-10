@@ -47,16 +47,25 @@ namespace Services
                 return;
             }
 
-            if (room.RoomCapacity == 0)
+            // Check if the player was previously in the room and assign them their previous position
+            if (room.PlayerX == playerName)
+            {
+                room.PlayerX = playerName;
+            }
+            else if (room.PlayerO == playerName)
             {
                 room.PlayerO = playerName;
             }
 
+            // Assign the first player to join the room to O and the second player to X
+            else if (room.RoomCapacity == 0)
+            {
+                room.PlayerO = playerName;
+            }
             else if (room.RoomCapacity == 1)
             {
                 room.PlayerX = playerName;
             }
-
 
             if (_sockets[0].State == WebSocketState.Open)
             {
@@ -196,7 +205,7 @@ namespace Services
                     move.GameState = GameState.StillPlaying;
                 }
 
-                    var computerMove = new PlayerMove
+                var computerMove = new PlayerMove
                 {
                     RoomId = move.RoomId,
                     Board = room.Board,

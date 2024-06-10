@@ -8,6 +8,7 @@ namespace Models
         public string Difficulty { get; set; } // Easy or Hard
         public string PlayerX { get; set; }
         public string PlayerO { get; set; }
+        public int[] Score { get; set; } = new int[2];
         public int[] Board { get; set; } = new int[9];
         public string Winner { get; set; }
 
