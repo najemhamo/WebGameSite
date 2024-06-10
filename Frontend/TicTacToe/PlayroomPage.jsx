@@ -25,7 +25,7 @@ export default function PlayroomPage(props) {
       .then((data) => {
         setId(data.id);
         setBoard(data.board);
-        // setScore(data.score)
+        setScore(data.score)
 
         const tmpPlayers = [data.playerO || "", data.playerX || ""];
         setPlayers(tmpPlayers);
@@ -33,11 +33,10 @@ export default function PlayroomPage(props) {
         if (data.roomCapacity === 2) {
           if (socket.readyState === WebSocket.OPEN)
             socket.send(
-              JSON.stringify({ type: "readyToStart", players: tmpPlayers })
+              JSON.stringify({ type: "readyToStart", players: tmpPlayers, roomId: roomId })
             );
 
           if (playerName === data.playerX) setPlayer(1);
-
           if (data.winner) setWinner(data.winner);
 
           setCanStart(true);
@@ -61,46 +60,52 @@ export default function PlayroomPage(props) {
 
   // Socket listening
   socket.onmessage = function (event) {
-    const messageObj = JSON.parse(event.data);
+    const message = JSON.parse(event.data);
+
+    // Should only affect the players in the same room
+    if (message.roomId !== roomId)
+        return
 
     // When the game can start
-    if (messageObj.type === "readyToStart") {
+    if (message.type === "readyToStart") {
+        
       // If a new player has joined the room
-      if (messageObj.players[1] !== players[1]) {
-        socket.send(JSON.stringify({ type: "restart!" }));
-        setPlayers(messageObj.players);
+      if (message.players[1] !== players[1]) {
+        socket.send(JSON.stringify({ type: "restart!", roomId: roomId }));
+        setPlayers(message.players);
         setRestartText("");
         restartGame();
       }
-
       setCanStart(true);
     }
 
     // When a player has left the room
-    else if (messageObj.type === "leaveRoom") setCanStart(false);
+    else if (message.type === "leaveRoom")
+        setCanStart(false);
+
     // When the board should be updated with the new move
-    else if (messageObj.type === "madeMove") {
+    else if (message.type === "madeMove") {
       let newBoard = [...board];
-      newBoard[messageObj.place] = currentPlayer + 1;
+      newBoard[message.place] = currentPlayer + 1;
       setCurrentPlayer((currentPlayer + 1) % 2);
       setBoard(newBoard);
     }
 
     // When a player has won the game
-    else if (messageObj.type === "haveWon") {
-      setWinner(messageObj.winner);
-      setBoard(messageObj.board);
-      setScore(messageObj.score);
+    else if (message.type === "haveWon") {
+      setWinner(message.winner);
+      setBoard(message.board);
+      setScore(message.score);
     }
 
     // When a player wants to restart the game
-    else if (messageObj.type === "restart?") {
+    else if (message.type === "restart?") {
       setRestartText("1/2");
       setRestart(true);
     }
 
     // When the board should restart
-    else if (messageObj.type === "restart!") {
+    else if (message.type === "restart!") {
       setRestartText("");
       restartGame();
     }
@@ -108,11 +113,11 @@ export default function PlayroomPage(props) {
 
   const tryRestart = () => {
     if (!restart) {
-      socket.send(JSON.stringify({ type: "restart?" }));
+      socket.send(JSON.stringify({ type: "restart?", roomId: roomId }));
       setRestartText("1/2");
       setRestart(true);
     } else {
-      socket.send(JSON.stringify({ type: "restart!" }));
+      socket.send(JSON.stringify({ type: "restart!", roomId: roomId }));
       setRestartText("");
       restartGame();
     }
@@ -146,7 +151,7 @@ export default function PlayroomPage(props) {
       `http://localhost:5007/tictactoe/rooms/${roomId}/leave`,
       postOptions
     ).then(() => {
-      socket.send(JSON.stringify({ type: "leaveRoom", id: roomId }));
+      socket.send(JSON.stringify({ type: "leaveRoom", roomId: roomId }));
       navigate("/TicTacToe/Rooms");
     });
   };
@@ -171,7 +176,7 @@ export default function PlayroomPage(props) {
       `http://localhost:5007/tictactoe/rooms/${roomId}/MultiPlayerMove`,
       postOptions
     ).then(() => {
-      socket.send(JSON.stringify({ type: "madeMove", place: index }));
+      socket.send(JSON.stringify({ type: "madeMove", place: index, roomId: roomId }));
 
       fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
         .then((response) => response.json())
@@ -192,7 +197,8 @@ export default function PlayroomPage(props) {
                 type: "haveWon",
                 winner: data.winner,
                 board: data.board,
-                score: data.score,
+                score: tmpScore,
+                roomId: roomId
               })
             );
           }
@@ -230,13 +236,11 @@ export default function PlayroomPage(props) {
                 disabled={currentPlayer !== player || winner}
                 onClick={() => makeMove(index)}
               >
-                {piece === 1
-                  ? "O"
-                  : piece === 2
-                  ? "X"
-                  : piece === 3
-                  ? winner
-                  : ""}
+                {   piece === 1 ?
+                    "O" : piece === 2 ?
+                    "X" : piece === 3 ?
+                    winner : ""
+                }
               </button>
             ))}
         </div>
