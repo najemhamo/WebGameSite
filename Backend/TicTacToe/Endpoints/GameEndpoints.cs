@@ -11,7 +11,7 @@ namespace Endpoints
         public static void ConfigureTicTacToeEndpoints(this WebApplication app)
         {
             var game = app.MapGroup("/tictactoe");
-            // game.MapGet("/", GetWebSocketConnection);
+            game.MapGet("/", GetWebSocketConnection);
             game.MapGet("rooms", GetAllRooms);
             game.MapGet("rooms/{roomId}", GetRoom);
             game.MapPost("rooms/{roomId}/join", JoinRoom);
@@ -23,20 +23,20 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/reset", ResetGame);
         }
 
-        // [EnableCors] // Enable CORS for this endpoint
-        // private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
-        // {
-        //     if (context.WebSockets.IsWebSocketRequest)
-        //     {
-        //         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        //         await webSocketService.HandleWebSocketConnection(webSocket);
-        //     }
-        //     else
-        //     {
-        //         context.Response.StatusCode = 400;
-        //         await context.Response.WriteAsync("Expected a WebSocket request");
-        //     }
-        // }
+        [EnableCors] // Enable CORS for this endpoint
+        private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                await webSocketService.HandleWebSocketConnection(webSocket);
+            }
+            else
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync("Expected a WebSocket request");
+            }
+        }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
