@@ -8,7 +8,7 @@ namespace Services
 {
     public class WebSocketService
     {
-        private readonly List<WebSocket> _sockets = new List<WebSocket>();
+        private readonly List<WebSocket> _sockets = new();
 
         public async Task HandleWebSocketConnection(WebSocket socket)
         {
