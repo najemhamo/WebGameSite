@@ -26,7 +26,7 @@ export default function QuizHomePage() {
         setTime(initialUserTime);
 
         //navigate to first question
-        navigate('/Quiz/TakeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
+        navigate('/quiz/takeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
     };
 
     //navigate back to homePage
