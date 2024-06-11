@@ -10,10 +10,21 @@ export default function QuestionPage() {
     const currentQuestionIndex = parseInt(questionId) - 1;
     const [selectedAnswer, setSelectedAnswer] = useState('');
     const timestampRef = useRef(null);
+    const [elapsedTime, setElapsedTime] = useState(0);
 
     //useEffect hook to measure time when page is loaded
     useEffect(() => {
             timestampRef.current = new Date().getTime();
+            
+            //update elapsed time every second
+            const interval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                const elapsed = Math.floor((currentTime - timestampRef.current) / 1000);
+                setElapsedTime(elapsed);
+            }, 1000);
+
+            //Clean interval on component unmount
+            return () => clearInterval(interval);
     }, [questionId]);
 
     //check if all data is passed onto the component
@@ -59,9 +70,9 @@ export default function QuestionPage() {
 
         //navigate to next question, or submissionPage
         if (currentQuestionIndex < questions.length - 1){
-            navigate(`/Quiz/TakeQuiz/${currentQuestionIndex + 2}`, { state });
+            navigate(`/quiz/takeQuiz/${currentQuestionIndex + 2}`, { state });
         } else {
-            navigate('/Quiz/Submission', { state });
+            navigate('/quiz/submission', { state });
         }
 
         //set selectedAnswer back to default
@@ -71,9 +82,9 @@ export default function QuestionPage() {
     //function to navigate back to previous question, or quizHomePage
     const previousQuestion = () => {
         if (currentQuestionIndex > 0) {
-            navigate(`/Quiz/TakeQuiz/${currentQuestionIndex}`, { state });
+            navigate(`/quiz/takeQuiz/${currentQuestionIndex}`, { state });
         } else {
-            navigate('/Quiz');
+            navigate('/quiz');
         }
     };
 
@@ -95,6 +106,9 @@ export default function QuestionPage() {
                 <h1>
                     Question {currentQuestionIndex + 1}/{questions.length}
                 </h1>
+                <div>
+                    Elapsed Time: {elapsedTime} seconds
+                </div>
             </header>
             <main>
                 <h2>

@@ -13,7 +13,7 @@ export default function HomePage() {
         <button className="button" onClick={() => navigate("/TicTacToe")}>
           Tic Tac Toe
         </button>
-        <button className="button" onClick={() => navigate("/Quiz")}>
+        <button className="button" onClick={() => navigate("/quiz")}>
           Quiz
         </button>
       </div>
