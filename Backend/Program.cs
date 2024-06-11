@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddSingleton<WebSocketService>();
 
+
 // //Connection to the frontend
 // builder.Services.AddCors(options =>
 // {
@@ -56,6 +57,30 @@ app.MapControllers();
 
 // Use websocket support
 app.UseWebSockets();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/tictactoe")
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            var webSocketService = context.RequestServices.GetService<WebSocketService>();
+            await webSocketService.HandleWebSocketConnection(webSocket);
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsync("WebSocket connection expected.");
+        }
+    }
+    else
+    {
+        await next();
+    }
+});
+
+app.UseRouting();
 
 app.ConfigureTicTacToeEndpoints();
 
