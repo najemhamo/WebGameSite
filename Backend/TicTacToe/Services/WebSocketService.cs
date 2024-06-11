@@ -13,67 +13,30 @@ namespace Services
         public async Task HandleWebSocketConnection(WebSocket socket)
         {
             _sockets.Add(socket);
-            var buffer = new byte[1024 * 4];
             try
             {
+                var buffer = new byte[1024 * 2];
                 while (socket.State == WebSocketState.Open)
                 {
-                    var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
+                    var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), default);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
+                        await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
                         break;
                     }
 
-                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
-                    // Broadcast the message to all connected clients
-                    foreach (var s in _sockets)
+                    foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
                     {
-                        if (s.State == WebSocketState.Open)
-                        {
-                            await s.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)), WebSocketMessageType.Text, true, CancellationToken.None);
-                        }
+                        await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
                     }
                 }
             }
             finally
             {
                 _sockets.Remove(socket);
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed due to an error", CancellationToken.None);
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "WebSocket connection closed", default);
             }
         }
-
-        // private readonly List<WebSocket> _sockets = new();
-
-        // public async Task HandleWebSocketConnection(WebSocket socket)
-        // {
-        //     _sockets.Add(socket);
-        //     try
-        //     {
-        //         var buffer = new byte[1024 * 2];
-        //         while (socket.State == WebSocketState.Open)
-        //         {
-        //             var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), default);
-        //             if (result.MessageType == WebSocketMessageType.Close)
-        //             {
-        //                 await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
-        //                 break;
-        //             }
-
-        //             foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
-        //             {
-        //                 await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
-        //             }
-        //         }
-        //     }
-        //     finally
-        //     {
-        //         _sockets.Remove(socket);
-        //         await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "WebSocket connection closed", default);
-        //     }
-        // }
 
         // A method to join a game room
         public async Task JoinGameRoom(Guid roomId, string playerName)
@@ -174,7 +137,7 @@ namespace Services
             {
                 if (socket.State == WebSocketState.Open)
                 {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, CancellationToken.None);
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
                 }
             }
         }
@@ -217,7 +180,7 @@ namespace Services
             {
                 if (socket.State == WebSocketState.Open)
                 {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, CancellationToken.None);
+                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
                 }
             }
 
@@ -261,7 +224,7 @@ namespace Services
                 {
                     if (socket.State == WebSocketState.Open)
                     {
-                        await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, CancellationToken.None);
+                        await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
                     }
                 }
             }
