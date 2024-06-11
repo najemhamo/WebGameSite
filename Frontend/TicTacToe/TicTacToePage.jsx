@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TicTacToeHomePage from "./TicTacToeHomePage";
 import PlayroomPage from "./PlayroomPage";
 import PCPlayRoom from "./PCPlayRoom";
@@ -7,10 +7,32 @@ import RoomPage from "./RoomPage";
 import ChooseDifficulty from "./Components/DifficultyComponent";
 
 export default function TicTacToePage() {
-  const [socket] = useState(
-    new WebSocket("wss://backend20240610112356.azurewebsites.net/tictactoe/")
-  );
+  const [socket, setSocket] = useState(null);
   const [playerName, setPlayerName] = useState("");
+
+  useEffect(() => {
+    const newSocket = new WebSocket(
+      "wss://backend20240610112356.azurewebsites.net/tictactoe"
+    );
+    setSocket(newSocket);
+
+    newSocket.onopen = () => {
+      console.log("Connected to WebSocket server");
+    };
+
+    newSocket.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+    };
+
+    newSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      // handle received data
+    };
+    return () => {
+      newSocket.close();
+    };
+  }, []);
 
   return (
     <>
