@@ -26,19 +26,21 @@ builder.Services.AddSingleton<WebSocketService>();
 //             .AllowCredentials();
 //         });
 // });
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("http://localhost:5173")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();  // If you need to support credentials
+    });
+});
 
 var app = builder.Build();
 // app.UseCors("AllowAnyOrigin");
 
-app.UseCors(builder =>
-        builder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-
-
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
