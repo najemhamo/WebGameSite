@@ -40,7 +40,6 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [EnableCors]
         private static async Task<IResult> GetAllRooms(IGameRepository gameRepository)
         {
             var rooms = await gameRepository.GetGameRooms();
@@ -49,7 +48,6 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [EnableCors]
         private static async Task<IResult> GetRoom(IGameRepository gameRepository, Guid roomId)
         {
             var room = await gameRepository.GetGameRoom(roomId);
