@@ -13,26 +13,33 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddSingleton<WebSocketService>();
 
-//Connection to the frontend
+// //Connection to the frontend
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy(name: "AllowAnyOrigin",
+//         policy =>
+//         {
+//             policy.AllowAnyOrigin()
+//             .AllowAnyMethod()
+//             .AllowAnyHeader()
+//             .AllowCredentials();
+//         });
+// });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "AllowAnyOrigin",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithOrigins("https://backend20240610112356.azurewebsites.net")
-            .AllowCredentials();
-        });
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("http://localhost:5173")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();  // If you need to support credentials
+    });
 });
 
-
 var app = builder.Build();
-app.UseCors("AllowAnyOrigin");
+// app.UseCors("AllowAnyOrigin");
 
-
-
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
