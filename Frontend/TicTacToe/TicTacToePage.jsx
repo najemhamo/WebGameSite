@@ -7,7 +7,7 @@ import RoomPage from "./RoomPage";
 import ChooseDifficulty from "./Components/DifficultyComponent";
 
 export default function TicTacToePage() {
-  const [socket] = useState(new WebSocket("wss://backend20240610112356.azurewebsites.net/tictactoe"));
+  const [socket] = useState(new WebSocket("wss://localhost/tictactoe"));
   const [playerName, setPlayerName] = useState("");
 
   return (

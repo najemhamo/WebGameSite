@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function PCPlayRoom(props) {
-  const { playerName, socket } = props;
+  const { playerName } = props;
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -25,10 +25,10 @@ export default function PCPlayRoom(props) {
     };
 
     fetch(
-      `https://backend20240610112356.azurewebsites.net:5271/tictactoe/rooms/${roomId}/SinglePlayerMove`,
+      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/SinglePlayerMove`,
       postOptions
     ).then(() => {
-      fetch(`https://backend20240610112356.azurewebsites.net:5271/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+      fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`) // CHANGE discuss this
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
