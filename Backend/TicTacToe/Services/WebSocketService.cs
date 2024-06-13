@@ -13,6 +13,7 @@ namespace Services
         public async Task HandleWebSocketConnection(WebSocket socket)
         {
             _sockets.Add(socket);
+            Console.WriteLine("Connection established");
             try
             {
                 var buffer = new byte[1024 * 2];
@@ -22,12 +23,20 @@ namespace Services
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
+                        Console.WriteLine("Connection closed by the client");
                         break;
                     }
 
+                    //Debugging
+                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
                     foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
                     {
-                        await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
+                        if (s.State == WebSocketState.Open)
+                        {
+                            //    await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
+                            await s.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)), WebSocketMessageType.Text, true, default);
+                        }
                     }
                 }
             }
@@ -35,6 +44,7 @@ namespace Services
             {
                 _sockets.Remove(socket);
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "WebSocket connection closed", default);
+                Console.WriteLine("WebSocket connection closed due to an error.");
             }
         }
 
