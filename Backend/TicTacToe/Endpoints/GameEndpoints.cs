@@ -23,20 +23,30 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/reset", ResetGame);
         }
 
-        [EnableCors] // Enable CORS for this endpoint
+
+        [EnableCors]
         private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
         {
-            if (context.WebSockets.IsWebSocketRequest)
-            {
-                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await webSocketService.HandleWebSocketConnection(webSocket);
-            }
-            else
-            {
-                context.Response.StatusCode = 400;
-                await context.Response.WriteAsync("Expected a WebSocket request");
-            }
+            var userId = context.Request.Query["userId"];
+            await webSocketService.HandleWebSocketConnection(context);
+            context.Response.StatusCode = 200;
         }
+
+
+        // [EnableCors] // Enable CORS for this endpoint
+        // private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
+        // {
+        //     if (context.WebSockets.IsWebSocketRequest)
+        //     {
+        //         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        //         await webSocketService.HandleWebSocketConnection(webSocket);
+        //     }
+        //     else
+        //     {
+        //         context.Response.StatusCode = 400;
+        //         await context.Response.WriteAsync("Expected a WebSocket request");
+        //     }
+        // }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
