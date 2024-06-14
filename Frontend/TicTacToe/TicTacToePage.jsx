@@ -12,7 +12,8 @@ export default function TicTacToePage() {
 
   useEffect(() => {
     const newSocket = new WebSocket(
-      "wss://backend20240610112356.azurewebsites.net/tictactoe"
+      "wss://backendwebsocket.webpubsub.azure.com/client/hubs/Hub?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ3c3M6Ly9iYWNrZW5kd2Vic29ja2V0LndlYnB1YnN1Yi5henVyZS5jb20vY2xpZW50L2h1YnMvSHViIiwiaWF0IjoxNzE4MzU3MzQwLCJleHAiOjE3MTgzNjA5NDB9.E9ScmL8R1f6Xo9OOdaIzDXhrV9x1PbNOgJFMZ-hVp4w"
+      //"wss://backendwebsocket.webpubsub.azure.com/tictactoe"
     );
     setSocket(newSocket);
 
@@ -29,9 +30,9 @@ export default function TicTacToePage() {
       console.log(data);
       // handle received data
     };
-    return () => {
-      newSocket.close();
-    };
+    // return () => {
+    //   newSocket.close();
+    // };
   }, []);
 
   return (
