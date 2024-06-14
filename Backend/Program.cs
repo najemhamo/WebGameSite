@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("http://localhost:5173", "https://guro18.github.io/WebGameSite/")
+        builder.WithOrigins("http://localhost:5174", "https://guro18.github.io/WebGameSite/")
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
