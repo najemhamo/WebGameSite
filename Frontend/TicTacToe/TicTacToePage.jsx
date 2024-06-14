@@ -7,13 +7,13 @@ import RoomPage from "./RoomPage";
 import ChooseDifficulty from "./Components/DifficultyComponent";
 
 export default function TicTacToePage() {
-  const [socket, setSocket] = useState(null);
+  const [socket] = useState(null);
   const [playerName, setPlayerName] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5007/tictactoe")
+    fetch("http://backend20240610112356.azurewebsites.net/tictactoe")
       .then((response) => response.json())
-      .then((data) => setSocket(data.uri));
+      .then((data) => console.log(data));
   }, []);
 
   return (
