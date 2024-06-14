@@ -1,7 +1,7 @@
 using Endpoints;
 using Repository;
 using Services;
-using Microsoft.Extensions.Azure;
+using Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddSingleton<WebSocketService>();
 
+builder.Services.Configure<AzureWebPubSubSettings>(builder.Configuration.GetSection("AzureWebPubSub"));
 
-builder.Services.AddAzureClients(clientBuilder =>
-{
-    clientBuilder.AddWebPubSubServiceClient(builder.Configuration["AzureWebPubSub:ConnectionString"], builder.Configuration["AzureWebPubSub:HubName"]);
-});
 
 // //Connection to the frontend
 builder.Services.AddCors(options =>
@@ -33,9 +30,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-
-app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -54,6 +48,8 @@ app.MapControllers();
 app.UseWebSockets();
 
 app.UseRouting();
+
+app.UseCors();
 
 app.ConfigureTicTacToeEndpoints();
 
