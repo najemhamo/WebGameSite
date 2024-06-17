@@ -9,7 +9,7 @@ export default function RoomPage(props) {
 
   // GET the rooms
   useEffect(() => {
-    fetch("https://backend20240610112356.azurewebsites.net/tictactoe/rooms")
+    fetch("http://localhost:5007/tictactoe/rooms")
       .then((response) => response.json())
       .then((data) => setRooms(data));
   }, []);
@@ -18,7 +18,7 @@ export default function RoomPage(props) {
   const joinRoom = (roomId) => {
     const postOptions = { method: "POST" };
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/join?playerName=${playerName}`,
       postOptions
     ).then(() => {
       socket.send(JSON.stringify({ type: "joinRoom", id: roomId }));

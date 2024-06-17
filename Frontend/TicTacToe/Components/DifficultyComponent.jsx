@@ -16,7 +16,7 @@ export default function ChooseDifficulty(props) {
     };
 
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/create?playerName=${playerName}&difficulty=${difficulty}`,
+      `http://localhost:5007/tictactoe/rooms/create?playerName=${playerName}&difficulty=${difficulty}`,
       postOptions
     )
       .then((response) => response.json())
@@ -39,12 +39,14 @@ export default function ChooseDifficulty(props) {
           <header>
             <h1 className="smallerHeader">Choose Your Game Difficulty</h1>
 
-            <button className="button" onClick={() => requestPC("Easy")}>
-              Easy
-            </button>
-            <button className="button" onClick={() => requestPC("Hard")}>
-              Hard
-            </button>
+            <div className="settingButton">
+              <button className="button" onClick={() => requestPC("Easy")}>
+                Easy
+              </button>
+              <button className="button" onClick={() => requestPC("Hard")}>
+                Hard
+              </button>
+            </div>
           </header>
         </div>
       )}

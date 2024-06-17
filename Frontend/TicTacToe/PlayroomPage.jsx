@@ -20,7 +20,7 @@ export default function PlayroomPage(props) {
 
   // GET the room
   useEffect(() => {
-    fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`)
+    fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`)
       .then((response) => response.json())
       .then((data) => {
         setId(data.id);
@@ -30,11 +30,17 @@ export default function PlayroomPage(props) {
         const tmpPlayers = [data.playerO || "", data.playerX || ""];
         setPlayers(tmpPlayers);
 
+        console.log("ROOM", data)
+        console.log("ROOM 2", playerName)
+        console.log("ROOM 3", data.playerX)
+
         if (data.roomCapacity === 2) {
           if (socket.readyState === WebSocket.OPEN)
+          {
             socket.send(
               JSON.stringify({ type: "readyToStart", players: tmpPlayers, roomId: roomId })
-            );
+            )
+          }
 
           if (playerName === data.playerX) setPlayer(1);
           if (data.winner) setWinner(data.winner);
@@ -133,11 +139,10 @@ export default function PlayroomPage(props) {
       }),
     };
 
-    fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/reset`, postOptions)
+    fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
       .then((response) => response.json())
       .then((data) => {
         setBoard(data.board);
-        setScore(data.score);
         setWinner(data.winner);
         setCurrentPlayer(0);
         setRestart(false);
@@ -148,7 +153,7 @@ export default function PlayroomPage(props) {
   const endGame = () => {
     const postOptions = { method: "POST" };
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/leave`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/leave`,
       postOptions
     ).then(() => {
       socket.send(JSON.stringify({ type: "leaveRoom", roomId: roomId }));
@@ -173,12 +178,12 @@ export default function PlayroomPage(props) {
     };
 
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/MultiPlayerMove`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/MultiPlayerMove`,
       postOptions
     ).then(() => {
       socket.send(JSON.stringify({ type: "madeMove", place: index, roomId: roomId }));
 
-      fetch(`https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+      fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
