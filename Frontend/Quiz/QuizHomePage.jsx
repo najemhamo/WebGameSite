@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 export default function QuizHomePage() {
     //declare constants
     const [questions, setQuestions] = useState([]);
-    const [descriptions, setDescriptions] = useState([]);
     const [answers, setAnswers] = useState ([]);
     const [userAnswers, setUserAnswers] = useState([]);
     const [rightAnswers, setRightAnswers] = useState([]);
@@ -21,12 +20,12 @@ export default function QuizHomePage() {
         const initialUserAnswers = new Array(15).fill(null);
         const initialUserTime = new Array(15).fill(null);
 
-        //update userAnswers & time lists
+        //update state of userAnswers & time lists
         setUserAnswers(initialUserAnswers);
         setTime(initialUserTime);
 
         //navigate to first question
-        navigate('/quiz/takeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
+        navigate('/quiz/takeQuiz/1', {state: {questions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
     };
 
     //navigate back to homePage
@@ -39,46 +38,65 @@ export default function QuizHomePage() {
         fetchQuizData();
     }, []);
 
+    //function to decode HTML entities
+    const decodeHtmlEntities = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+
     //async function to fetch data, using API request
     const fetchQuizData = async () => {
         try {
-            const [questionsResponse, descriptionsResponse, answersResponse, rightAnswersResponse] = await Promise.all([
-                fetch('https://backend20240610112356.azurewebsites.net/quiz/questions'),
-                fetch('https://backend20240610112356.azurewebsites.net/quiz/descriptions'),
-                fetch('https://backend20240610112356.azurewebsites.net/quiz/answers'),
-                fetch('https://backend20240610112356.azurewebsites.net/quiz/rightAnswers')
-            ]);
+            const response = await 
+            fetch('https://opentdb.com/api.php?amount=15&category=9&type=multiple');
 
-            //check if requests were 
-            if (!questionsResponse.ok || 
-                !descriptionsResponse.ok || 
-                !answersResponse.ok || 
-                !rightAnswersResponse.ok)
-                {
-                throw new Error('Failed to fetch quiz data');
-                }
+            const fetchedData = await response.json();
 
-            //promise of all the data
-            const [questionData, descriptionData, answersData, rightAnswersData] = await Promise.all([
-                questionsResponse.json(),
-                descriptionsResponse.json(),
-                answersResponse.json(),
-                rightAnswersResponse.json()
-            ]);
+            if (fetchedData.response_code !== 0) {
+                throw new Error(`API returned error code: ${fetchedData.response_code}`);
+            }
 
-            //update lists with the data fetced
-            setQuestions(questionData);
-            setDescriptions(descriptionData);
-            setAnswers(answersData);
-            setRightAnswers(rightAnswersData);
+            appendToLists(fetchedData.results);
+            
+        } catch (error) {
+            console.error('Fetch error:', error);
         }
-        
-        //error handling
-        catch (error) 
-        {
-            console.error('Error fetching quiz data:', error.message);
-            alert('Error fetching quiz data. Please try again later.')
+    };
+
+    //shuffle the order of given array (answers)
+    const shuffleArray = (array) => {
+        const shuffledArray = array.slice();
+
+        for (let i = shuffledArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledArray[i], shuffledArray[j]] = 
+            [shuffledArray[j], shuffledArray[i]];
         }
+        return shuffledArray;
+    };
+
+    //append all elements to the lists
+    const appendToLists = (fetchedData) => {
+        const questionsList = [];
+        const answersList = [];
+        const rightAnswersList = [];
+
+        //loop through fetched data
+        fetchedData.forEach((element) => {
+            questionsList.push(decodeHtmlEntities(element.question));
+            rightAnswersList.push(decodeHtmlEntities(element.correct_answer));
+            
+            //fetch answers and shuffle order
+            const answerAlternatives = 
+            shuffleArray([...element.incorrect_answers.map(decodeHtmlEntities), decodeHtmlEntities(element.correct_answer)]);
+            answersList.push(answerAlternatives);
+        });
+
+        //update state for all lists
+        setQuestions(questionsList);
+        setAnswers(answersList);
+        setRightAnswers(rightAnswersList);
     };
 
     //Page:
