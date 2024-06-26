@@ -19,8 +19,10 @@ export default function SubmissionPage () {
     //function for submit answers
     const submit = async () => {
         try {
+
             //navigate to scorepage
-            navigate('/quiz/scorePage', { state: { questions, answers, userAnswers, rightAnswers, time } });
+            navigate('/quiz/scorePage', 
+                { state: { questions, answers, userAnswers, rightAnswers, time } });
 
             //error handling
         } catch (error) {

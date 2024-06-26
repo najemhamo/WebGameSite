@@ -19,7 +19,8 @@ export default function QuestionPage() {
             //update elapsed time every second
             const interval = setInterval(() => {
                 const currentTime = new Date().getTime();
-                const elapsed = Math.floor((currentTime - timestampRef.current) / 1000);
+                const elapsed = 
+                Math.floor((currentTime - timestampRef.current) / 1000);
                 setElapsedTime(elapsed);
             }, 1000);
 
@@ -27,10 +28,10 @@ export default function QuestionPage() {
             return () => clearInterval(interval);
     }, [questionId]);
 
-    //check if all data is passed onto the component
+    //check if all data is passed onto the component,
+    //and return error otherwise
     if (!state || 
-        !state.questions || 
-        !state.descriptions || 
+        !state.questions ||
         !state.answers || 
         !state.rightAnswers || 
         !state.time)
@@ -38,10 +39,10 @@ export default function QuestionPage() {
         return <div>Error: Quiz data not found.</div>;
     }
 
-    //declare all variables passed into the component
-    const { questions, descriptions, answers, userAnswers, rightAnswers, time } = state;
+    //declare all variables passed into the component via state
+    const { questions, answers, userAnswers, rightAnswers, time } = state;
 
-    //error handling, if for some reason questionIndex is incorrect
+    //error handling, if questionIndex is incorrect
     if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.length) {
         return <div>Error: Invalid question index, please try again</div>;
     }
@@ -65,7 +66,7 @@ export default function QuestionPage() {
         const finalTimeStamp = Math.floor((timestamp2 - timestampRef.current)/1000);
 
         //set userAnswer and time elapsed
-        userAnswers[currentQuestionIndex] = selectedAnswer[0];
+        userAnswers[currentQuestionIndex] = selectedAnswer;
         time[currentQuestionIndex] = finalTimeStamp;
 
         //navigate to next question, or submissionPage
@@ -114,9 +115,6 @@ export default function QuestionPage() {
                 <h2>
                     {questions[currentQuestionIndex]}
                 </h2>
-                <p>
-                    {descriptions[currentQuestionIndex]}
-                </p>
                 <div className="answerButtonsContainer">
                 {answers[currentQuestionIndex].map((answer, index) => (
                         <button key={index} onClick={() => selectAnswer(answer)}
