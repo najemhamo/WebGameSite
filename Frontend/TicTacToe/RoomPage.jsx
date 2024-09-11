@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import { useNavigate } from "react-router-dom";
 import ChooseName from "./Components/NameComponent";
 
@@ -106,3 +107,10 @@ export default function RoomPage(props) {
     </>
   );
 }
+
+// Add prop type validation
+RoomPage.propTypes = {
+  socket: PropTypes.object.isRequired,
+  playerName: PropTypes.string.isRequired,
+  setPlayerName: PropTypes.func.isRequired,
+};
