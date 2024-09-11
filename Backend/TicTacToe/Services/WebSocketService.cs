@@ -1,44 +1,28 @@
-using System.Net.WebSockets;
 using System.Text.Json;
-using System.Text;
 using Models;
 using GameLogic;
+using Azure.Messaging.WebPubSub;
+using Microsoft.Extensions.Options;
 
 namespace Services
 {
     public class WebSocketService
     {
-        private readonly List<WebSocket> _sockets = new();
+        private readonly WebPubSubServiceClient _pubSubServiceClient;
 
-        public async Task HandleWebSocketConnection(WebSocket socket)
+        public WebSocketService(IOptions<AzureWebPubSubSettings> settings)
         {
-            _sockets.Add(socket);
-            try
-            {
-                var buffer = new byte[1024 * 2];
-                while (socket.State == WebSocketState.Open)
-                {
-                    var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), default);
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, default);
-                        break;
-                    }
-
-                    foreach (var s in _sockets.Where(s => s != socket && s.State == WebSocketState.Open))
-                    {
-                        await s.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, default);
-                    }
-                }
-            }
-            finally
-            {
-                _sockets.Remove(socket);
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "WebSocket connection closed", default);
-            }
+            var config = settings.Value;
+            _pubSubServiceClient = new WebPubSubServiceClient(config.ConnectionString, config.HubName);
         }
 
-        // A method to join a game room
+        public async Task<IResult> HandleWebSocketConnection()
+        {
+            var uri = _pubSubServiceClient.GetClientAccessUri(TimeSpan.FromMinutes(60));
+            Console.WriteLine("Connection established with URI: " + uri.AbsoluteUri);
+            return Results.Ok(new { uri = uri });
+        }
+
         public async Task JoinGameRoom(Guid roomId, string playerName)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
@@ -47,7 +31,7 @@ namespace Services
                 return;
             }
 
-            // Check if the player was previously in the room and assign them their previous position
+            // Assign players to the room
             if (room.PlayerX == playerName)
             {
                 room.PlayerX = playerName;
@@ -56,8 +40,6 @@ namespace Services
             {
                 room.PlayerO = playerName;
             }
-
-            // Assign the first player to join the room to O and the second player to X
             else if (room.RoomCapacity == 0)
             {
                 room.PlayerO = playerName;
@@ -67,16 +49,12 @@ namespace Services
                 room.PlayerX = playerName;
             }
 
-            if (_sockets[0].State == WebSocketState.Open)
-            {
-                room.RoomCapacity++;
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-            }
+            room.RoomCapacity++;
 
-
+            // Send updated room info to all clients
+            await _pubSubServiceClient.SendToAllAsync(JsonSerializer.Serialize(room));
         }
 
-        // A method to leave a game room in real-time
         public async Task LeaveGameRoom(Guid roomId)
         {
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == roomId);
@@ -85,16 +63,10 @@ namespace Services
                 return;
             }
 
-            if (room.RoomCapacity == 0)
-            {
-                return;
-            }
-            if (_sockets[0].State == WebSocketState.Open)
-            {
-                room.RoomCapacity--;
-                await _sockets[0].SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(room)), WebSocketMessageType.Text, true, default);
-            }
+            room.RoomCapacity--;
 
+            // Send updated room info to all clients
+            await _pubSubServiceClient.SendToAllAsync(JsonSerializer.Serialize(room));
         }
 
         public async Task MultiPlayerMove(PlayerMove move)
@@ -109,16 +81,14 @@ namespace Services
             var (state, updatedBoard) = TicTacToeGame.CheckGameState(room.Board);
             room.Board = updatedBoard;
 
-
-            // Update the game state to 1 (win) or 2 (draw)
             if (state == GameState.Win)
             {
-                move.GameState = (GameState)1;
+                move.GameState = GameState.Win;
                 room.Winner = move.Player;
             }
             else if (state == GameState.Draw)
             {
-                move.GameState = (GameState)2;
+                move.GameState = GameState.Draw;
             }
             else
             {
@@ -133,17 +103,11 @@ namespace Services
                 Winner = room.Winner
             });
 
-            foreach (var socket in _sockets)
-            {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
-                }
-            }
+            await _pubSubServiceClient.SendToAllAsync(moveJson);
         }
+
         public async Task SinglePlayerMove(PlayerMove move)
         {
-
             var room = GameRoom.GameRooms.FirstOrDefault(x => x.RoomId == move.RoomId);
             if (room == null)
             {
@@ -156,12 +120,12 @@ namespace Services
 
             if (state == GameState.Win)
             {
-                move.GameState = (GameState)1;
+                move.GameState = GameState.Win;
                 room.Winner = move.Player;
             }
             else if (state == GameState.Draw)
             {
-                move.GameState = (GameState)2;
+                move.GameState = GameState.Draw;
             }
             else
             {
@@ -176,13 +140,7 @@ namespace Services
                 Winner = room.Winner
             });
 
-            foreach (var socket in _sockets)
-            {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
-                }
-            }
+            await _pubSubServiceClient.SendToAllAsync(moveJson);
 
             // AI Move
             if (state == GameState.StillPlaying && move.Player == "O")
@@ -193,12 +151,12 @@ namespace Services
 
                 if (state == GameState.Win)
                 {
-                    move.GameState = (GameState)1;
+                    move.GameState = GameState.Win;
                     room.Winner = "X";
                 }
                 else if (state == GameState.Draw)
                 {
-                    move.GameState = (GameState)2;
+                    move.GameState = GameState.Draw;
                 }
                 else
                 {
@@ -220,16 +178,8 @@ namespace Services
                     Player = computerMove.Player
                 });
 
-                foreach (var socket in _sockets)
-                {
-                    if (socket.State == WebSocketState.Open)
-                    {
-                        await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
-                    }
-                }
+                await _pubSubServiceClient.SendToAllAsync(moveJson);
             }
-
-            return;
         }
 
         public async Task ResetGame(Guid roomId)
@@ -245,18 +195,12 @@ namespace Services
             var moveJson = JsonSerializer.Serialize(new
             {
                 Board = room.Board,
-                GameState = (GameState)0, // Reset the game state to the initial state
+                GameState = GameState.StillPlaying,
                 Player = "",
                 Winner = room.Winner
             });
 
-            foreach (var socket in _sockets)
-            {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(Encoding.UTF8.GetBytes(moveJson), WebSocketMessageType.Text, true, default);
-                }
-            }
+            await _pubSubServiceClient.SendToAllAsync(moveJson);
         }
     }
 }

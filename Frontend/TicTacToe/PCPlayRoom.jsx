@@ -30,6 +30,7 @@ export default function PCPlayRoom(props) {
       postOptions
     ).then(() => {
       fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
@@ -55,7 +56,10 @@ export default function PCPlayRoom(props) {
       }),
     };
 
+
     fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
+
+   
       .then((response) => response.json())
       .then((data) => {
         setBoard(data.board);

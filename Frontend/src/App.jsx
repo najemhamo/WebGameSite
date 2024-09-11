@@ -13,10 +13,10 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/*" element={<TicTacToePage />} />
-        <Route path='/Quiz' element={<QuizHomePage/>}/>
-        <Route path='/Quiz/TakeQuiz/:questionId' element={<QuestionPage/>}/>
-        <Route path='/Quiz/Submission' element={<SubmissionPage/>}/>
-        <Route path='/Quiz/ScorePage' element={<ScorePage/>}/>
+        <Route path='/quiz' element={<QuizHomePage/>}/>
+        <Route path='/quiz/takeQuiz/:questionId' element={<QuestionPage/>}/>
+        <Route path='/quiz/submission' element={<SubmissionPage/>}/>
+        <Route path='/quiz/scorePage' element={<ScorePage/>}/>
       </Routes>
     </>
   );

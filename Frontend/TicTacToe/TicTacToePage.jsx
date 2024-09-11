@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TicTacToeHomePage from "./TicTacToeHomePage";
 import PlayroomPage from "./PlayroomPage";
 import PCPlayRoom from "./PCPlayRoom";
@@ -8,7 +8,14 @@ import ChooseDifficulty from "./Components/DifficultyComponent";
 
 export default function TicTacToePage() {
   const [socket] = useState(new WebSocket("ws://localhost:5007/tictactoe"));
+
   const [playerName, setPlayerName] = useState("");
+
+  useEffect(() => {
+    fetch("http://backend20240610112356.azurewebsites.net/tictactoe")
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }, []);
 
   return (
     <>

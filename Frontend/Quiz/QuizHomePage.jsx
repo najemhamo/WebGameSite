@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 export default function QuizHomePage() {
     //declare constants
     const [questions, setQuestions] = useState([]);
-    const [descriptions, setDescriptions] = useState([]);
     const [answers, setAnswers] = useState ([]);
     const [userAnswers, setUserAnswers] = useState([]);
     const [rightAnswers, setRightAnswers] = useState([]);
@@ -21,12 +20,12 @@ export default function QuizHomePage() {
         const initialUserAnswers = new Array(15).fill(null);
         const initialUserTime = new Array(15).fill(null);
 
-        //update userAnswers & time lists
+        //update state of userAnswers & time lists
         setUserAnswers(initialUserAnswers);
         setTime(initialUserTime);
 
         //navigate to first question
-        navigate('/Quiz/TakeQuiz/1', {state: {questions, descriptions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
+        navigate('/quiz/takeQuiz/1', {state: {questions, answers, userAnswers : initialUserAnswers, rightAnswers, time : initialUserTime}});
     };
 
     //navigate back to homePage
@@ -39,9 +38,17 @@ export default function QuizHomePage() {
         fetchQuizData();
     }, []);
 
+    //function to decode HTML entities
+    const decodeHtmlEntities = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+
     //async function to fetch data, using API request
     const fetchQuizData = async () => {
         try {
+
             const [questionsResponse, descriptionsResponse, answersResponse, rightAnswersResponse] = await Promise.all([
                 fetch('http://localhost:5007/quiz/questions'),
                 fetch('http://localhost:5007/quiz/descriptions'),
@@ -71,14 +78,43 @@ export default function QuizHomePage() {
             setDescriptions(descriptionData);
             setAnswers(answersData);
             setRightAnswers(rightAnswersData);
+
         }
-        
-        //error handling
-        catch (error) 
-        {
-            console.error('Error fetching quiz data:', error.message);
-            alert('Error fetching quiz data. Please try again later.')
+    };
+
+    //shuffle the order of given array (answers)
+    const shuffleArray = (array) => {
+        const shuffledArray = array.slice();
+
+        for (let i = shuffledArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledArray[i], shuffledArray[j]] = 
+            [shuffledArray[j], shuffledArray[i]];
         }
+        return shuffledArray;
+    };
+
+    //append all elements to the lists
+    const appendToLists = (fetchedData) => {
+        const questionsList = [];
+        const answersList = [];
+        const rightAnswersList = [];
+
+        //loop through fetched data
+        fetchedData.forEach((element) => {
+            questionsList.push(decodeHtmlEntities(element.question));
+            rightAnswersList.push(decodeHtmlEntities(element.correct_answer));
+            
+            //fetch answers and shuffle order
+            const answerAlternatives = 
+            shuffleArray([...element.incorrect_answers.map(decodeHtmlEntities), decodeHtmlEntities(element.correct_answer)]);
+            answersList.push(answerAlternatives);
+        });
+
+        //update state for all lists
+        setQuestions(questionsList);
+        setAnswers(answersList);
+        setRightAnswers(rightAnswersList);
     };
 
     //Page:

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repository;
 using Services;
 using Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace Endpoints
 {
@@ -22,20 +23,13 @@ namespace Endpoints
             game.MapPost("rooms/{roomId}/reset", ResetGame);
         }
 
-
-        private static async Task GetWebSocketConnection(HttpContext context, WebSocketService webSocketService)
+        [EnableCors]
+        private static async Task<IResult> GetWebSocketConnection(WebSocketService webSocketService)
         {
-            if (context.WebSockets.IsWebSocketRequest)
-            {
-                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await webSocketService.HandleWebSocketConnection(webSocket);
-            }
-            else
-            {
-                context.Response.StatusCode = 400;
-                await context.Response.WriteAsync("Expected a WebSocket request");
-            }
+            var connection = await webSocketService.HandleWebSocketConnection();
+            return Results.Ok(connection);
         }
+
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,6 +54,7 @@ namespace Endpoints
         // An endpoint to join a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> JoinRoom(Guid roomId, [FromQuery] string playerName, WebSocketService webSocketService)
         {
             await webSocketService.JoinGameRoom(roomId, playerName);
@@ -70,6 +65,7 @@ namespace Endpoints
         // An endpoint to leave a game room in real-time
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> LeaveRoom(Guid roomId, WebSocketService webSocketService, IGameRepository gameRepository)
         {
             var room = await gameRepository.GetGameRoom(roomId);
@@ -83,6 +79,7 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> MultiPlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
             await webSocketService.MultiPlayerMove(move);
@@ -91,6 +88,7 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         public static async Task<IResult> SinglePlayerMove(PlayerMove move, WebSocketService webSocketService)
         {
             await webSocketService.SinglePlayerMove(move);
@@ -100,6 +98,7 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> CreateRoom(IGameRepository gameRepository, [FromQuery] string playerName, [FromQuery] string difficulty)
         {
             if (string.IsNullOrEmpty(playerName) || string.IsNullOrEmpty(difficulty))
@@ -119,6 +118,7 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> DeleteRoom(Guid roomId, IGameRepository gameRepository)
         {
             if (await gameRepository.GetGameRoom(roomId) == null)
@@ -131,6 +131,7 @@ namespace Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableCors]
         private static async Task<IResult> ResetGame(IGameRepository gameRepository, Guid roomId, WebSocketService webSocketService)
         {
             await webSocketService.ResetGame(roomId);

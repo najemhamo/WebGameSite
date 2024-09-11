@@ -10,7 +10,7 @@ export default function SubmissionPage () {
     //function to navigate back to previous
     const backToPrevious = () => {
         const lastQuestionIndex = state.userAnswers.length;
-        navigate(`/Quiz/TakeQuiz/${lastQuestionIndex}`, { state });
+        navigate(`/quiz/takeQuiz/${lastQuestionIndex}`, { state });
     };
 
     //declare the variables passed onto the component
@@ -19,8 +19,10 @@ export default function SubmissionPage () {
     //function for submit answers
     const submit = async () => {
         try {
+
             //navigate to scorepage
-            navigate('/Quiz/ScorePage', { state: { questions, answers, userAnswers, rightAnswers, time } });
+            navigate('/quiz/scorePage', 
+                { state: { questions, answers, userAnswers, rightAnswers, time } });
 
             //error handling
         } catch (error) {
