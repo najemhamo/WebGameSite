@@ -48,19 +48,37 @@ export default function QuizHomePage() {
     //async function to fetch data, using API request
     const fetchQuizData = async () => {
         try {
-            const response = await 
-            fetch('https://opentdb.com/api.php?amount=15&category=9&type=multiple');
 
-            const fetchedData = await response.json();
+            const [questionsResponse, descriptionsResponse, answersResponse, rightAnswersResponse] = await Promise.all([
+                fetch('http://localhost:5007/quiz/questions'),
+                fetch('http://localhost:5007/quiz/descriptions'),
+                fetch('http://localhost:5007/quiz/answers'),
+                fetch('http://localhost:5007/quiz/rightAnswers')
+            ]);
 
-            if (fetchedData.response_code !== 0) {
-                throw new Error(`API returned error code: ${fetchedData.response_code}`);
-            }
+            //check if requests were 
+            if (!questionsResponse.ok || 
+                !descriptionsResponse.ok || 
+                !answersResponse.ok || 
+                !rightAnswersResponse.ok)
+                {
+                throw new Error('Failed to fetch quiz data');
+                }
 
-            appendToLists(fetchedData.results);
-            
-        } catch (error) {
-            console.error('Fetch error:', error);
+            //promise of all the data
+            const [questionData, descriptionData, answersData, rightAnswersData] = await Promise.all([
+                questionsResponse.json(),
+                descriptionsResponse.json(),
+                answersResponse.json(),
+                rightAnswersResponse.json()
+            ]);
+
+            //update lists with the data fetced
+            setQuestions(questionData);
+            setDescriptions(descriptionData);
+            setAnswers(answersData);
+            setRightAnswers(rightAnswersData);
+
         }
     };
 

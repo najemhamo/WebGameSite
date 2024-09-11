@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function PCPlayRoom(props) {
-  const { playerName, socket } = props;
+  const { playerName } = props;
   const { roomId } = useParams();
   const navigate = useNavigate();
 
   const [board, setBoard] = useState(Array(9).fill(0));
   const [winner, setWinner] = useState(null);
+  const [score, setScore] = useState([0, 0]);
 
   const makeMove = (index) => {
     let tmpBoard = board;
@@ -25,16 +26,23 @@ export default function PCPlayRoom(props) {
     };
 
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/SinglePlayerMove`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/SinglePlayerMove`,
       postOptions
     ).then(() => {
-      fetch(
-        `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}`
-      ) // CHANGE discuss this
+      fetch(`http://localhost:5007/tictactoe/rooms/${roomId}`) // CHANGE discuss this
+
         .then((response) => response.json())
         .then((data) => {
           setBoard(data.board);
-          if (data.winner) setWinner(data.winner);
+          if (data.winner)
+          {
+            let tmpScore = [...score];
+            if (data.winner === "O") tmpScore[0]++;
+            else tmpScore[1]++;
+            
+            setScore(tmpScore);
+            setWinner(data.winner)
+          }
         });
     });
   };
@@ -48,10 +56,10 @@ export default function PCPlayRoom(props) {
       }),
     };
 
-    fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/reset`,
-      postOptions
-    )
+
+    fetch(`http://localhost:5007/tictactoe/rooms/${roomId}/reset`, postOptions)
+
+   
       .then((response) => response.json())
       .then((data) => {
         setBoard(data.board);
@@ -63,7 +71,7 @@ export default function PCPlayRoom(props) {
   const leaveRoom = () => {
     const deleteOptions = { method: "DELETE" };
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/delete`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/delete`,
       deleteOptions
     ).then(navigate("/TicTacToe"));
   };
@@ -73,9 +81,11 @@ export default function PCPlayRoom(props) {
       <header>
         <h2 className="smallerHeader">Game Room</h2>
         <div className="nameContainer">
+          <p>{score[0]}</p>
           <p>{playerName}</p>
           <p>VS</p>
           <p>PC</p>
+          <p>{score[1]}</p>
         </div>
       </header>
 

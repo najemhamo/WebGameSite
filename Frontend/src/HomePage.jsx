@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <>
       <header>
-        <h1>Web Game Site</h1>
+        <h1 className="header">Web Game Site</h1>
       </header>
 
       <div className="container">

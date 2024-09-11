@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import { useNavigate } from "react-router-dom";
 import ChooseName from "./Components/NameComponent";
 
@@ -9,7 +10,7 @@ export default function RoomPage(props) {
 
   // GET the rooms
   useEffect(() => {
-    fetch("https://backend20240610112356.azurewebsites.net/tictactoe/rooms")
+    fetch("http://localhost:5007/tictactoe/rooms")
       .then((response) => response.json())
       .then((data) => setRooms(data));
   }, []);
@@ -18,7 +19,8 @@ export default function RoomPage(props) {
   const joinRoom = (roomId) => {
     const postOptions = { method: "POST" };
     fetch(
-      `https://backend20240610112356.azurewebsites.net/tictactoe/rooms/${roomId}/join?playerName=${playerName}`,
+      `http://localhost:5007/tictactoe/rooms/${roomId}/join?playerName=${playerName}`,
+
       postOptions
     ).then(() => {
       socket.send(JSON.stringify({ type: "joinRoom", id: roomId }));
@@ -106,3 +108,10 @@ export default function RoomPage(props) {
     </>
   );
 }
+
+// Add prop type validation
+RoomPage.propTypes = {
+  socket: PropTypes.object.isRequired,
+  playerName: PropTypes.string.isRequired,
+  setPlayerName: PropTypes.func.isRequired,
+};
