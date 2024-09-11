@@ -4,7 +4,6 @@
 
 Welcome to the **Web Game Site**, a personal project where you can enjoy multiplayer and single-player games online with your friends. Currently, the platform features two games: **TicTacToe** and a **Quiz Game**, with plans to expand in the future.
 
-![Main Game Page](#)
 <img src="Screenshots/1.png" width="800">
 
 ## Games Available
